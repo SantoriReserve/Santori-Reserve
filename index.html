@@ -1481,15 +1481,15 @@
       <div class="intel-card">
         <span class="intel-category">Global Trend Brief</span>
         <h3 class="intel-title">The Quiet Luxury Shift: How Consumer Psychology is Reshaping Brand Architecture</h3>
-        <p class="intel-desc">A global analysis of the movement from logo-led visibility to understated authority — and what it means for brand positioning, product development, and communications strategy in 2025 and beyond.</p>
-        <span class="intel-badge">Coming Q3 2025</span>
+        <p class="intel-desc">A global analysis of the movement from logo-led visibility to understated authority — and what it means for brand positioning, product development, and communications strategy in 2026 and beyond.</p>
+        <span class="intel-badge">Coming Q3 2026</span>
       </div>
 
       <div class="intel-card">
         <span class="intel-category">Partnership Intelligence</span>
         <h3 class="intel-title">Strategic Partnerships in Luxury Hospitality: A Framework for Brand Integration</h3>
         <p class="intel-desc">How luxury fashion, beauty, and lifestyle brands are building durable visibility through hotel partnerships, residency programs, and bespoke guest experience architecture.</p>
-        <span class="intel-badge">Coming Q4 2025</span>
+        <span class="intel-badge">Coming Q4 2026</span>
       </div>
 
       <div class="intel-card">
@@ -1537,22 +1537,25 @@
         </div>
       </div>
 
-      <div class="reveal reveal-delay-1">
+      <form id="inquiry-form" name="inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="reveal reveal-delay-1">
+        <input type="hidden" name="form-name" value="inquiry">
+        <p style="display:none"><label>Don't fill this out: <input name="bot-field"></label></p>
+
         <div class="form-row">
           <div class="form-group">
             <label>Full Name</label>
-            <input type="text" placeholder="Your name">
+            <input type="text" name="full-name" placeholder="Your name">
           </div>
           <div class="form-group">
             <label>Brand / Company</label>
-            <input type="text" placeholder="Brand or company name">
+            <input type="text" name="brand-company" placeholder="Brand or company name">
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label>Industry</label>
-            <select>
+            <select name="industry">
               <option value="" disabled selected>Select your industry</option>
               <option>Luxury Fashion</option>
               <option>Luxury Beauty</option>
@@ -1567,25 +1570,25 @@
           </div>
           <div class="form-group">
             <label>Email Address</label>
-            <input type="email" placeholder="your@email.com">
+            <input type="email" name="email" placeholder="your@email.com">
           </div>
         </div>
 
         <div class="form-group">
           <label>Website / Social Presence</label>
-          <input type="text" placeholder="URL, Instagram, or LinkedIn">
+          <input type="text" name="website" placeholder="URL, Instagram, or LinkedIn">
         </div>
 
         <div class="form-group">
           <label>Service Interest</label>
-          <select>
+          <select name="service-interest">
             <option value="" disabled selected>Primary area of interest</option>
             <option>International Market Intelligence</option>
             <option>Cultural Positioning Intelligence</option>
             <option>Expansion Architecture</option>
             <option>Strategic Partnerships</option>
-            <option>Strategic Access & Industry Placement</option>
-            <option>Campaign & Editorial Architecture</option>
+            <option>Strategic Access &amp; Industry Placement</option>
+            <option>Campaign &amp; Editorial Architecture</option>
             <option>Luxury Visibility Strategy</option>
             <option>Private Advisory Retainer</option>
             <option>Multiple Services / Unsure</option>
@@ -1594,19 +1597,19 @@
 
         <div class="form-group">
           <label>Target Markets or Expansion Goals</label>
-          <input type="text" placeholder="e.g. Middle East, Europe, Southeast Asia...">
+          <input type="text" name="target-markets" placeholder="e.g. Middle East, Europe, Southeast Asia...">
         </div>
 
         <div class="form-group">
-          <label>Tell Us About Your Brand & Inquiry</label>
-          <textarea placeholder="Share your brand overview, current situation, and what you are looking to achieve. The more specific, the better."></textarea>
+          <label>Tell Us About Your Brand &amp; Inquiry</label>
+          <textarea name="message" placeholder="Share your brand overview, current situation, and what you are looking to achieve. The more specific, the better."></textarea>
         </div>
 
         <div class="form-submit">
-          <button class="btn-submit">Submit Private Inquiry</button>
+          <button type="submit" class="btn-submit">Submit Private Inquiry</button>
           <p class="form-privacy">Your inquiry is reviewed confidentially. We do not share, sell, or publicize client information. All communications are held with full discretion.</p>
         </div>
-      </div>
+      </form>
 
     </div>
   </div>
@@ -1657,7 +1660,7 @@
     </div>
 
     <div class="footer-bottom">
-      <div class="footer-copy">© 2025 Santori Reserve. All Rights Reserved. Private & Confidential.</div>
+      <div class="footer-copy">© 2026 Santori Reserve. All Rights Reserved. Private &amp; Confidential.</div>
       <div class="footer-legal">
         <a href="#">Privacy Policy</a>
         <a href="#">Terms of Engagement</a>
@@ -1745,12 +1748,26 @@
   });
 
   // ─── FORM SUBMIT ─────────────────────────────────────
-  document.querySelector('.btn-submit').addEventListener('click', function(e) {
-    this.textContent = 'Inquiry Received — Thank You';
-    this.style.background = '#2a2420';
-    this.style.color = 'var(--champagne)';
-    this.style.cursor = 'default';
-    this.disabled = true;
+  const inquiryForm = document.getElementById('inquiry-form');
+  inquiryForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('.btn-submit');
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(this)).toString()
+      });
+      if (response.ok) {
+        btn.textContent = 'Inquiry Received — Thank You';
+        btn.style.background = '#2a2420';
+        btn.style.color = 'var(--champagne)';
+        btn.style.cursor = 'default';
+        btn.disabled = true;
+      }
+    } catch (err) {
+      this.submit();
+    }
   });
 </script>
 </body>
