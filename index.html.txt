@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Santori Reserve — Private Luxury Strategy House</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --espresso: #1a1410;
+    --charcoal: #0f0e0c;
+    --ivory: #f5f0e8;
+    --champagne: #c9a96e;
+    --champagne-light: #e8d5a3;
+    --warm-grey: #8a8278;
+    --light-grey: #d4cfc8;
+    --dark-surface: #201c18;
+    --border: rgba(201,169,110,0.2);
+    --border-light: rgba(201,169,110,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--charcoal);
+    color: var(--ivory);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ─── CUSTOM CURSOR ─────────────────────────── */
+  .cursor {
+    width: 8px; height: 8px;
+    background: var(--champagne);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(201,169,110,0.5);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                width 0.3s, height 0.3s, opacity 0.3s;
+  }
+
+  /* ─── NAV ────────────────────────────────────── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 28px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.5s ease, padding 0.4s ease;
+  }
+  nav.scrolled {
+    background: rgba(15,14,12,0.96);
+    backdrop-filter: blur(12px);
+    padding: 18px 60px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    color: var(--ivory);
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+  .nav-logo span {
+    color: var(--champagne);
+  }
+  .nav-links {
+    display: flex;
+    gap: 48px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--light-grey);
+    text-decoration: none;
+    transition: color 0.3s;
+    font-weight: 400;
+  }
+  .nav-links a:hover { color: var(--champagne); }
+
+  .nav-cta {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--charcoal);
+    background: var(--champagne);
+    padding: 12px 28px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.3s, color 0.3s;
+  }
+  .nav-cta:hover {
+    background: var(--champagne-light);
+  }
+
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--ivory);
+    transition: all 0.3s;
+  }
+
+  /* ─── MOBILE MENU ────────────────────────────── */
+  .mobile-menu {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--charcoal);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  .mobile-menu.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .mobile-menu a {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--ivory);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.3s;
+  }
+  .mobile-menu a:hover { color: var(--champagne); }
+  .mobile-close {
+    position: absolute;
+    top: 28px; right: 28px;
+    font-size: 1.4rem;
+    color: var(--warm-grey);
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--ivory);
+  }
+
+  /* ─── SECTIONS ───────────────────────────────── */
+  section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 60px;
+    width: 100%;
+  }
+
+  /* ─── HERO ───────────────────────────────────── */
+  #home {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--charcoal);
+  }
+
+  .hero-grain {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .hero-line-left {
+    position: absolute;
+    left: 60px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--border), transparent);
+    z-index: 1;
+  }
+  .hero-line-right {
+    position: absolute;
+    right: 60px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--border), transparent);
+    z-index: 1;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.58rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    font-weight: 400;
+    margin-bottom: 36px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.3s forwards;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--champagne);
+  }
+
+  .hero-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.2rem, 7vw, 6.8rem);
+    font-weight: 300;
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    color: var(--ivory);
+    margin-bottom: 40px;
+    max-width: 820px;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.5s forwards;
+  }
+
+  .hero-headline em {
+    font-style: italic;
+    color: var(--champagne);
+  }
+
+  .hero-sub {
+    font-size: 0.8rem;
+    line-height: 1.9;
+    color: var(--warm-grey);
+    max-width: 480px;
+    letter-spacing: 0.04em;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.7s forwards;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.9s forwards;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 18px 48px;
+    background: var(--champagne);
+    color: var(--charcoal);
+    text-decoration: none;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 500;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .btn-primary:hover {
+    background: var(--champagne-light);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--light-grey);
+    text-decoration: none;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 400;
+    transition: color 0.3s;
+  }
+  .btn-secondary::after {
+    content: '→';
+    font-size: 0.9rem;
+    transition: transform 0.3s;
+  }
+  .btn-secondary:hover { color: var(--champagne); }
+  .btn-secondary:hover::after { transform: translateX(4px); }
+
+  .hero-bottom {
+    position: absolute;
+    bottom: 48px;
+    left: 60px;
+    right: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 2;
+    opacity: 0;
+    animation: fadeUp 1s ease 1.1s forwards;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+  .hero-stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--champagne);
+    line-height: 1;
+    display: block;
+  }
+  .hero-stat-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm-grey);
+    margin-top: 6px;
+    display: block;
+  }
+
+  /* ─── DIVIDER ────────────────────────────────── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin: 0 0 80px;
+  }
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider-text {
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    white-space: nowrap;
+  }
+
+  /* ─── SECTION HEADERS ────────────────────────── */
+  .section-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    font-weight: 400;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--champagne);
+  }
+
+  .section-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 4.5vw, 4rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--ivory);
+    margin-bottom: 28px;
+  }
+  .section-headline em {
+    font-style: italic;
+    color: var(--champagne);
+  }
+
+  .section-body {
+    font-size: 0.8rem;
+    line-height: 1.95;
+    color: var(--warm-grey);
+    letter-spacing: 0.02em;
+  }
+
+  /* ─── ABOUT ──────────────────────────────────── */
+  #about {
+    background: var(--dark-surface);
+    min-height: auto;
+    padding: 160px 0;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 120px;
+    align-items: start;
+  }
+
+  .about-pillars {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 64px;
+  }
+
+  .pillar {
+    background: rgba(201,169,110,0.04);
+    border: 1px solid var(--border-light);
+    padding: 32px 28px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .pillar:hover {
+    background: rgba(201,169,110,0.08);
+    border-color: var(--border);
+  }
+  .pillar-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    color: var(--champagne);
+    opacity: 0.4;
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 300;
+  }
+  .pillar-title {
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ivory);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .pillar-desc {
+    font-size: 0.72rem;
+    color: var(--warm-grey);
+    line-height: 1.7;
+  }
+
+  .about-manifesto {
+    border-left: 1px solid var(--border);
+    padding-left: 48px;
+    margin: 48px 0;
+  }
+  .about-manifesto p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--ivory);
+    line-height: 1.6;
+  }
+
+  /* ─── SERVICES ───────────────────────────────── */
+  #services {
+    padding: 160px 0;
+    background: var(--charcoal);
+    min-height: auto;
+  }
+
+  .services-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    margin-bottom: 100px;
+    align-items: end;
+  }
+
+  .services-intro {
+    max-width: 400px;
+    grid-column: 2;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-light);
+    border: 1px solid var(--border-light);
+  }
+
+  .service-card {
+    background: var(--charcoal);
+    padding: 52px 48px;
+    transition: background 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 1px;
+    background: var(--champagne);
+    transition: width 0.5s ease;
+  }
+  .service-card:hover::before { width: 100%; }
+  .service-card:hover { background: rgba(201,169,110,0.03); }
+
+  .service-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    color: var(--champagne);
+    opacity: 0.5;
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+    display: block;
+  }
+  .service-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--ivory);
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  .service-body {
+    font-size: 0.72rem;
+    color: var(--warm-grey);
+    line-height: 1.85;
+    margin-bottom: 24px;
+  }
+  .service-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .service-tag {
+    font-size: 0.52rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+  }
+
+  /* ─── WHO WE WORK WITH ────────────────────────── */
+  #clients {
+    background: var(--dark-surface);
+    padding: 160px 0;
+    min-height: auto;
+  }
+
+  .clients-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 100px;
+    margin-bottom: 100px;
+    align-items: center;
+  }
+
+  .client-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1px;
+    background: var(--border-light);
+  }
+
+  .client-item {
+    background: var(--dark-surface);
+    padding: 44px 32px;
+    text-align: center;
+    transition: background 0.3s;
+    cursor: default;
+  }
+  .client-item:hover { background: rgba(201,169,110,0.05); }
+
+  .client-icon {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    display: block;
+    opacity: 0.5;
+    filter: grayscale(1);
+  }
+  .client-name {
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--light-grey);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .client-statement {
+    background: var(--charcoal);
+    border: 1px solid var(--border-light);
+    padding: 64px;
+    margin-top: 80px;
+    text-align: center;
+  }
+  .client-statement p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--ivory);
+    line-height: 1.5;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .client-statement cite {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    font-style: normal;
+    margin-top: 32px;
+  }
+
+  /* ─── INTELLIGENCE ────────────────────────────── */
+  #intelligence {
+    padding: 160px 0;
+    background: var(--charcoal);
+    min-height: auto;
+  }
+
+  .intel-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    margin-bottom: 80px;
+    align-items: end;
+  }
+
+  .intel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border-light);
+    margin-bottom: 60px;
+  }
+
+  .intel-card {
+    background: var(--charcoal);
+    padding: 48px 40px;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .intel-card:hover { background: rgba(201,169,110,0.03); }
+
+  .intel-category {
+    font-size: 0.52rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    margin-bottom: 20px;
+    display: block;
+  }
+  .intel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--ivory);
+    line-height: 1.3;
+    margin-bottom: 16px;
+  }
+  .intel-desc {
+    font-size: 0.7rem;
+    color: var(--warm-grey);
+    line-height: 1.8;
+    margin-bottom: 28px;
+  }
+  .intel-badge {
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm-grey);
+    border: 1px solid var(--border-light);
+    padding: 6px 14px;
+    display: inline-block;
+  }
+  .intel-badge.available {
+    color: var(--champagne);
+    border-color: var(--border);
+  }
+
+  .intel-cta-bar {
+    background: var(--dark-surface);
+    border: 1px solid var(--border-light);
+    padding: 48px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .intel-cta-bar p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-style: italic;
+    color: var(--ivory);
+    max-width: 500px;
+    line-height: 1.4;
+    font-weight: 300;
+  }
+
+  /* ─── INQUIRY ────────────────────────────────── */
+  #inquiry {
+    background: var(--dark-surface);
+    padding: 160px 0;
+    min-height: auto;
+  }
+
+  .inquiry-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 120px;
+    align-items: start;
+  }
+
+  .inquiry-left h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.6rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--ivory);
+    margin-bottom: 32px;
+  }
+  .inquiry-left h2 em { font-style: italic; color: var(--champagne); }
+
+  .inquiry-note {
+    font-size: 0.72rem;
+    color: var(--warm-grey);
+    line-height: 1.9;
+    margin-bottom: 48px;
+    letter-spacing: 0.02em;
+  }
+
+  .inquiry-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .inquiry-detail-item {
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--light-grey);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .inquiry-detail-item::before {
+    content: '—';
+    color: var(--champagne);
+    flex-shrink: 0;
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    font-size: 0.55rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    margin-bottom: 10px;
+    font-weight: 400;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(201,169,110,0.25);
+    padding: 14px 0;
+    color: var(--ivory);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.3s;
+    letter-spacing: 0.02em;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-bottom-color: var(--champagne);
+  }
+  select {
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a96e' stroke-width='1' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    padding-right: 24px;
+  }
+  select option { background: var(--charcoal); color: var(--ivory); }
+  textarea { resize: none; height: 100px; }
+  ::placeholder { color: rgba(138,130,120,0.5); font-size: 0.75rem; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+
+  .form-submit {
+    margin-top: 40px;
+  }
+  .btn-submit {
+    display: inline-block;
+    padding: 20px 56px;
+    background: var(--champagne);
+    color: var(--charcoal);
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .btn-submit:hover {
+    background: var(--champagne-light);
+    transform: translateY(-1px);
+  }
+
+  .form-privacy {
+    font-size: 0.58rem;
+    color: var(--warm-grey);
+    margin-top: 20px;
+    letter-spacing: 0.04em;
+    line-height: 1.6;
+  }
+
+  /* ─── FOOTER ─────────────────────────────────── */
+  footer {
+    background: var(--charcoal);
+    border-top: 1px solid var(--border-light);
+    padding: 80px 0 48px;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 60px;
+  }
+
+  .footer-brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    color: var(--ivory);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .footer-brand-name span { color: var(--champagne); }
+
+  .footer-tagline {
+    font-size: 0.68rem;
+    color: var(--warm-grey);
+    line-height: 1.8;
+    max-width: 260px;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-col-title {
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    margin-bottom: 24px;
+    font-weight: 400;
+  }
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .footer-links a {
+    font-size: 0.72rem;
+    color: var(--warm-grey);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--champagne); }
+
+  .footer-bottom {
+    border-top: 1px solid var(--border-light);
+    padding-top: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .footer-copy {
+    font-size: 0.6rem;
+    color: var(--warm-grey);
+    letter-spacing: 0.1em;
+  }
+  .footer-legal {
+    display: flex;
+    gap: 32px;
+  }
+  .footer-legal a {
+    font-size: 0.58rem;
+    color: var(--warm-grey);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.3s;
+  }
+  .footer-legal a:hover { color: var(--champagne); }
+
+  /* ─── ANIMATIONS ─────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.15s; }
+  .reveal-delay-2 { transition-delay: 0.3s; }
+  .reveal-delay-3 { transition-delay: 0.45s; }
+  .reveal-delay-4 { transition-delay: 0.6s; }
+
+  /* ─── SCROLL INDICATOR ───────────────────────── */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
+    opacity: 0;
+    animation: fadeUp 1s ease 1.3s forwards;
+  }
+  .scroll-indicator span {
+    font-size: 0.48rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--warm-grey);
+  }
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--champagne), transparent);
+    animation: scrollAnim 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollAnim {
+    0%   { opacity: 0; transform: scaleY(0); transform-origin: top; }
+    50%  { opacity: 1; transform: scaleY(1); }
+    100% { opacity: 0; transform: scaleY(1); transform-origin: bottom; }
+  }
+
+  /* ─── HORIZONTAL RULE ────────────────────────── */
+  .hr-gold {
+    border: none;
+    height: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  /* ─── PHILOSOPHY STRIP ───────────────────────── */
+  .philosophy-strip {
+    background: var(--champagne);
+    padding: 24px 60px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .philosophy-ticker {
+    display: inline-flex;
+    gap: 64px;
+    animation: ticker 30s linear infinite;
+  }
+  .philosophy-ticker span {
+    font-size: 0.58rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--charcoal);
+    font-weight: 500;
+  }
+  .philosophy-ticker .dot {
+    color: rgba(26,20,16,0.4);
+    letter-spacing: 0;
+  }
+  @keyframes ticker {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ─── RESPONSIVE ─────────────────────────────── */
+  @media (max-width: 1024px) {
+    nav { padding: 24px 40px; }
+    nav.scrolled { padding: 16px 40px; }
+    .hero-line-left, .hero-line-right { left: 40px; right: 40px; }
+    .container { padding: 0 40px; }
+    .hero-bottom { left: 40px; right: 40px; }
+
+    .about-grid { gap: 60px; }
+    .services-header { grid-template-columns: 1fr; gap: 40px; }
+    .services-intro { grid-column: 1; max-width: 100%; }
+    .clients-intro { grid-template-columns: 1fr; gap: 40px; }
+    .client-list { grid-template-columns: repeat(3, 1fr); }
+    .intel-header { grid-template-columns: 1fr; gap: 40px; }
+    .intel-grid { grid-template-columns: 1fr 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 48px; }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 22px 24px; }
+    nav.scrolled { padding: 16px 24px; }
+    .nav-links, .nav-cta { display: none; }
+    .hamburger { display: flex; }
+    .mobile-menu { display: flex; }
+    .container { padding: 0 24px; }
+
+    .hero-line-left, .hero-line-right { display: none; }
+    .hero-bottom { display: none; }
+    .hero-headline { font-size: clamp(2.4rem, 9vw, 3.6rem); }
+
+    #about, #services, #clients, #intelligence, #inquiry { padding: 100px 0; }
+
+    .about-grid { grid-template-columns: 1fr; gap: 60px; }
+    .about-pillars { grid-template-columns: 1fr; }
+    .services-grid { grid-template-columns: 1fr; }
+    .services-header { grid-template-columns: 1fr; }
+    .clients-intro { grid-template-columns: 1fr; gap: 40px; }
+    .client-list { grid-template-columns: repeat(2, 1fr); }
+    .intel-grid { grid-template-columns: 1fr; }
+    .intel-cta-bar { flex-direction: column; text-align: center; padding: 40px 24px; }
+    .inquiry-grid { grid-template-columns: 1fr; gap: 60px; }
+    .form-row { grid-template-columns: 1fr; gap: 0; }
+    .footer-top { grid-template-columns: 1fr; gap: 48px; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; }
+    .client-statement { padding: 40px 24px; }
+    .philosophy-strip { padding: 20px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#home" class="nav-logo">Santori<span>&nbsp;Reserve</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#clients">Clients</a></li>
+    <li><a href="#intelligence">Intelligence</a></li>
+  </ul>
+  <a href="#inquiry" class="nav-cta">Private Inquiry</a>
+  <div class="hamburger" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" id="mobileClose">✕</button>
+  <a href="#about" class="mobile-link">About</a>
+  <a href="#services" class="mobile-link">Services</a>
+  <a href="#clients" class="mobile-link">Clients</a>
+  <a href="#intelligence" class="mobile-link">Intelligence</a>
+  <a href="#inquiry" class="mobile-link">Private Inquiry</a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 1: HOME -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="home">
+  <div class="hero-grain"></div>
+  <div class="hero-line-left"></div>
+  <div class="hero-line-right"></div>
+
+  <div class="container" style="position:relative; z-index:2; padding-top: 180px; padding-bottom: 160px;">
+    <div class="hero-eyebrow">Private Luxury Strategy House</div>
+
+    <h1 class="hero-headline">
+      Where Luxury Brands<br>
+      Enter <em>New Markets</em><br>
+      With Precision.
+    </h1>
+
+    <p class="hero-sub">
+      Santori Reserve provides international market intelligence, cultural positioning, strategic access, and expansion architecture for the world's most discerning brands and private founders.
+    </p>
+
+    <div class="hero-actions">
+      <a href="#inquiry" class="btn-primary">Request Private Access</a>
+      <a href="#services" class="btn-secondary">Explore Services</a>
+    </div>
+  </div>
+
+  <div class="hero-bottom">
+    <div class="hero-stat">
+      <span class="hero-stat-num">12+</span>
+      <span class="hero-stat-label">Markets Covered</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">Global</span>
+      <span class="hero-stat-label">Reach & Access</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-num">Private</span>
+      <span class="hero-stat-label">Advisory Model</span>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- PHILOSOPHY TICKER -->
+<div class="philosophy-strip">
+  <div class="philosophy-ticker">
+    <span>International Expansion</span><span class="dot">◆</span>
+    <span>Cultural Intelligence</span><span class="dot">◆</span>
+    <span>Strategic Access</span><span class="dot">◆</span>
+    <span>Market Positioning</span><span class="dot">◆</span>
+    <span>Editorial Visibility</span><span class="dot">◆</span>
+    <span>Partnership Architecture</span><span class="dot">◆</span>
+    <span>Luxury Growth Strategy</span><span class="dot">◆</span>
+    <span>Private Advisory</span><span class="dot">◆</span>
+    <!-- duplicate for seamless loop -->
+    <span>International Expansion</span><span class="dot">◆</span>
+    <span>Cultural Intelligence</span><span class="dot">◆</span>
+    <span>Strategic Access</span><span class="dot">◆</span>
+    <span>Market Positioning</span><span class="dot">◆</span>
+    <span>Editorial Visibility</span><span class="dot">◆</span>
+    <span>Partnership Architecture</span><span class="dot">◆</span>
+    <span>Luxury Growth Strategy</span><span class="dot">◆</span>
+    <span>Private Advisory</span><span class="dot">◆</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 2: ABOUT -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+
+      <div>
+        <div class="section-label reveal">About the House</div>
+        <h2 class="section-headline reveal reveal-delay-1">
+          A Private Intelligence<br>
+          Firm for <em>Luxury</em><br>
+          Expansion.
+        </h2>
+
+        <div class="about-manifesto reveal reveal-delay-2">
+          <p>"We do not work with everyone. We work with the right ones."</p>
+        </div>
+
+        <p class="section-body reveal reveal-delay-3">
+          Santori Reserve is a private luxury strategy house helping brands expand, position, and integrate into new markets through intelligence, partnerships, strategic access, and cultural precision.<br><br>
+          Founded on the belief that luxury brands deserve more than surface-level marketing advice, Santori Reserve operates at the intersection of intelligence and execution — bridging the gap between where a brand stands today and where it belongs globally.<br><br>
+          We are selective by design. Every engagement is confidential, customized, and built around a single objective: sustainable, elevated growth in the markets that matter most.
+        </p>
+      </div>
+
+      <div>
+        <div class="about-pillars">
+          <div class="pillar reveal">
+            <span class="pillar-num">01</span>
+            <div class="pillar-title">Intelligence</div>
+            <p class="pillar-desc">Deep market, cultural, and consumer intelligence that eliminates guesswork and costly entry mistakes.</p>
+          </div>
+          <div class="pillar reveal reveal-delay-1">
+            <span class="pillar-num">02</span>
+            <div class="pillar-title">Access</div>
+            <p class="pillar-desc">Curated introductions, room access, and industry placement that most brands cannot buy or manufacture.</p>
+          </div>
+          <div class="pillar reveal reveal-delay-2">
+            <span class="pillar-num">03</span>
+            <div class="pillar-title">Positioning</div>
+            <p class="pillar-desc">Cultural and editorial positioning that ensures your brand occupies the right space in every new market.</p>
+          </div>
+          <div class="pillar reveal reveal-delay-3">
+            <span class="pillar-num">04</span>
+            <div class="pillar-title">Architecture</div>
+            <p class="pillar-desc">End-to-end expansion and partnership architecture designed for longevity, not short-term visibility.</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 48px; padding: 36px 40px; border: 1px solid var(--border-light);" class="reveal">
+          <p style="font-size: 0.65rem; letter-spacing: 0.06em; color: var(--warm-grey); line-height: 1.9;">
+            Santori Reserve operates on an inquiry-only basis. Engagements are limited to ensure the highest level of strategic attention, discretion, and results for every client we serve.
+          </p>
+          <a href="#inquiry" class="btn-secondary" style="display:inline-flex; margin-top:20px; font-size: 0.58rem;">Apply for a Private Consultation</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 3: SERVICES -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="services">
+  <div class="container">
+
+    <div class="services-header">
+      <div>
+        <div class="section-label reveal">Our Services</div>
+        <h2 class="section-headline reveal reveal-delay-1">
+          Capabilities Built<br>
+          for <em>Serious</em><br>
+          Brands.
+        </h2>
+      </div>
+      <div class="services-intro">
+        <p class="section-body reveal reveal-delay-2">
+          Every Santori Reserve service is built to solve a specific failure point in luxury market expansion. We do not offer generic strategy. We offer precise, high-level intelligence and execution designed for brands that operate — or intend to operate — at the top of their category.
+        </p>
+      </div>
+    </div>
+
+    <div class="services-grid reveal">
+
+      <div class="service-card">
+        <span class="service-num">01</span>
+        <h3 class="service-title">International Market Intelligence</h3>
+        <p class="service-body">Before entering any market, you need to understand it. We deliver deep intelligence on consumer behavior, market infrastructure, regional competitors, distribution channels, and timing. We prevent costly, uninformed entry decisions that damage brand equity.</p>
+        <div class="service-tags">
+          <span class="service-tag">For: Expanding Brands</span>
+          <span class="service-tag">Market Reports</span>
+          <span class="service-tag">Competitive Mapping</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <span class="service-num">02</span>
+        <h3 class="service-title">Cultural Positioning Intelligence</h3>
+        <p class="service-body">Culture dictates perception. We analyze how luxury is consumed, communicated, and valued within your target markets — ensuring your brand speaks the right language, references the right signals, and lands with the cultural authority it deserves.</p>
+        <div class="service-tags">
+          <span class="service-tag">For: Global Brands</span>
+          <span class="service-tag">Cultural Analysis</span>
+          <span class="service-tag">Brand Positioning</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <span class="service-num">03</span>
+        <h3 class="service-title">Expansion Architecture</h3>
+        <p class="service-body">We design the full strategic framework for your international expansion — market sequencing, entry strategy, partnership requirements, visibility timelines, and risk mitigation. A clear, executable roadmap from where you are to where you intend to be.</p>
+        <div class="service-tags">
+          <span class="service-tag">For: Founders & Executives</span>
+          <span class="service-tag">Strategic Roadmaps</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <span class="service-num">04</span>
+        <h3 class="service-title">Strategic Partnerships</h3>
+        <p class="service-body">The right partnerships accelerate growth, open doors, and establish authority. We identify, vet, and facilitate meaningful strategic alliances — between brands, institutions, distribution networks, retail partners, hospitality groups, and private entities.</p>
+        <div class="service-tags">
+          <span class="service-tag">For: All Luxury Verticals</span>
+          <span class="service-tag">Partnership Brokerage</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <span class="service-num">05</span>
+        <h3 class="service-title">Strategic Access & Industry Placement</h3>
+        <p class="service-body">Access is a competitive advantage most brands cannot manufacture. We place our clients in the rooms, conversations, events, and networks that matter — providing introductions to the individuals and organizations that move markets.</p>
+        <div class="service-tags">
+          <span class="service-tag">For: Private Founders</span>
+          <span class="service-tag">Industry Access</span>
+          <span class="service-tag">Network Introductions</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <span class="service-num">06</span>
+        <h3 class="service-title">Campaign & Editorial Architecture</h3>
+        <p class="service-body">Luxury visibility is earned, not bought. We architect campaigns and editorial strategies that place brands within the cultural and editorial landscape of their target market — through the right publications, creators, institutions, and moments.</p>
+        <div class="service-tags">
+          <span class="service-tag">For: Fashion & Beauty</span>
+          <span class="service-tag">Editorial Strategy</span>
+          <span class="service-tag">Campaign Design</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <span class="service-num">07</span>
+        <h3 class="service-title">Luxury Visibility Strategy</h3>
+        <p class="service-body">Visibility at the luxury level requires a different architecture than conventional marketing. We develop bespoke visibility frameworks that establish authority, desirability, and cultural relevance across global luxury markets — without overexposure.</p>
+        <div class="service-tags">
+          <span class="service-tag">For: New Entrants</span>
+          <span class="service-tag">Positioning</span>
+          <span class="service-tag">Awareness Architecture</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <span class="service-num">08</span>
+        <h3 class="service-title">Private Advisory Retainers</h3>
+        <p class="service-body">For founders and executives who require ongoing strategic guidance, market intelligence, and high-level decision support, our Private Advisory Retainer provides continuous access to our team's intelligence, networks, and strategic perspective — on a confidential, retained basis.</p>
+        <div class="service-tags">
+          <span class="service-tag">Retained Clients Only</span>
+          <span class="service-tag">Confidential</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 60px; text-align:center;" class="reveal">
+      <a href="#inquiry" class="btn-primary">Inquire About Services</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 4: WHO WE WORK WITH -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="clients">
+  <div class="container">
+
+    <div class="clients-intro">
+      <div>
+        <div class="section-label reveal">Our Clientele</div>
+        <h2 class="section-headline reveal reveal-delay-1">
+          Serving Those Who<br>
+          Operate at <em>The Top</em><br>
+          of Their Category.
+        </h2>
+      </div>
+      <div>
+        <p class="section-body reveal reveal-delay-2">
+          Santori Reserve works exclusively with brands, creators, and founders operating at the luxury level — or those with the strategic ambition and product quality to compete there. We are not a volume agency. We are a selective partner.<br><br>
+          Every engagement begins with a private inquiry and an assessment of strategic alignment. Our clients choose us for access, intelligence, and results. We choose our clients for caliber, vision, and commitment to excellence.
+        </p>
+      </div>
+    </div>
+
+    <div class="client-list reveal">
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">Luxury Fashion<br>Brands</div>
+      </div>
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">Luxury Beauty<br>Brands</div>
+      </div>
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">Hospitality<br>Groups</div>
+      </div>
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">Boutique Hotels<br>& Private Villas</div>
+      </div>
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">Luxury Wellness<br>Brands</div>
+      </div>
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">Luxury Real Estate<br>Developers</div>
+      </div>
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">Elevated Lifestyle<br>Brands</div>
+      </div>
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">High-Level<br>Creators</div>
+      </div>
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">Editorial<br>Talent</div>
+      </div>
+      <div class="client-item">
+        <span class="client-icon">◈</span>
+        <div class="client-name">Private<br>Founders</div>
+      </div>
+    </div>
+
+    <div class="client-statement reveal">
+      <p>"Luxury brands often fail internationally not because their product is wrong — but because their strategy is. The wrong market, the wrong moment, the wrong partnerships, the wrong cultural read. We exist to change that."</p>
+      <cite>— Santori Reserve, Strategic Philosophy</cite>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 5: INTELLIGENCE -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="intelligence">
+  <div class="container">
+
+    <div class="intel-header">
+      <div>
+        <div class="section-label reveal">Intelligence Desk</div>
+        <h2 class="section-headline reveal reveal-delay-1">
+          Market Intelligence<br>
+          for <em>Informed</em><br>
+          Expansion.
+        </h2>
+      </div>
+      <div>
+        <p class="section-body reveal reveal-delay-2">
+          Santori Reserve publishes curated intelligence briefs, market reports, and cultural analysis for the luxury sector. Available exclusively to clients and registered inquiries. Our intelligence desk monitors global luxury trends, emerging markets, consumer shifts, and geopolitical factors affecting brand strategy.
+        </p>
+        <a href="#inquiry" class="btn-secondary" style="display:inline-flex; margin-top:28px; font-size:0.6rem;">Request Intelligence Access</a>
+      </div>
+    </div>
+
+    <div class="intel-grid reveal">
+
+      <div class="intel-card">
+        <span class="intel-category">Market Report</span>
+        <h3 class="intel-title">The Gulf Luxury Market: Positioning, Access & Cultural Entry</h3>
+        <p class="intel-desc">A comprehensive intelligence brief on luxury brand positioning in the GCC — covering consumer behavior, cultural signals, retail infrastructure, and the creator economy's role in brand authority.</p>
+        <span class="intel-badge available">Available to Clients</span>
+      </div>
+
+      <div class="intel-card">
+        <span class="intel-category">Expansion Intelligence</span>
+        <h3 class="intel-title">Southeast Asia: The Next Luxury Frontier for Fashion & Beauty</h3>
+        <p class="intel-desc">An analysis of luxury consumer growth across Singapore, Indonesia, Thailand, and Vietnam — including market-specific entry strategies, partnership infrastructure, and visibility architecture.</p>
+        <span class="intel-badge available">Available to Clients</span>
+      </div>
+
+      <div class="intel-card">
+        <span class="intel-category">Cultural Intelligence</span>
+        <h3 class="intel-title">Understanding Luxury in the African Market: Nigeria, Ghana & Kenya</h3>
+        <p class="intel-desc">A market and culture intelligence report covering the rise of luxury consumption in Sub-Saharan Africa, brand whitespace opportunities, and the influence of diaspora culture on regional luxury perception.</p>
+        <span class="intel-badge available">Available to Clients</span>
+      </div>
+
+      <div class="intel-card">
+        <span class="intel-category">Global Trend Brief</span>
+        <h3 class="intel-title">The Quiet Luxury Shift: How Consumer Psychology is Reshaping Brand Architecture</h3>
+        <p class="intel-desc">A global analysis of the movement from logo-led visibility to understated authority — and what it means for brand positioning, product development, and communications strategy in 2025 and beyond.</p>
+        <span class="intel-badge">Coming Q3 2025</span>
+      </div>
+
+      <div class="intel-card">
+        <span class="intel-category">Partnership Intelligence</span>
+        <h3 class="intel-title">Strategic Partnerships in Luxury Hospitality: A Framework for Brand Integration</h3>
+        <p class="intel-desc">How luxury fashion, beauty, and lifestyle brands are building durable visibility through hotel partnerships, residency programs, and bespoke guest experience architecture.</p>
+        <span class="intel-badge">Coming Q4 2025</span>
+      </div>
+
+      <div class="intel-card">
+        <span class="intel-category">Private Brief</span>
+        <h3 class="intel-title">The Creator Economy at the Luxury Level: Access, Authority & Monetization</h3>
+        <p class="intel-desc">A strategic brief for luxury creators and editorial talent on building brand equity, securing high-value partnerships, negotiating retainers, and transitioning from visibility to sustained commercial authority.</p>
+        <span class="intel-badge">Private Inquiry Only</span>
+      </div>
+
+    </div>
+
+    <div class="intel-cta-bar reveal">
+      <p>"Intelligence is the difference between entering a market and owning it."</p>
+      <a href="#inquiry" class="btn-primary">Access Our Intelligence Desk</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 6: PRIVATE INQUIRY -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="inquiry">
+  <div class="container">
+
+    <div style="text-align:center; margin-bottom: 80px;" class="reveal">
+      <div class="section-label" style="justify-content:center;">Private Inquiry</div>
+      <p style="font-size:0.62rem; letter-spacing:0.15em; color: var(--warm-grey); margin-top:8px; text-transform:uppercase;">All inquiries are reviewed personally. Responses within 72 hours.</p>
+    </div>
+
+    <div class="inquiry-grid">
+
+      <div class="inquiry-left">
+        <h2 class="reveal">This Is Not<br>a Contact Form.<br>It Is an <em>Application.</em></h2>
+        <p class="inquiry-note reveal reveal-delay-1">
+          Santori Reserve does not operate on a first-come, first-served basis. Every potential engagement begins with a private inquiry, which our team reviews for strategic alignment, market fit, and readiness.<br><br>
+          If we believe we can deliver meaningful results for your brand, we will reach out to arrange a confidential consultation at your earliest convenience.
+        </p>
+        <div class="inquiry-details reveal reveal-delay-2">
+          <div class="inquiry-detail-item">Engagements are strictly confidential</div>
+          <div class="inquiry-detail-item">All client work is handled under NDA upon request</div>
+          <div class="inquiry-detail-item">We work with a limited number of clients at any given time</div>
+          <div class="inquiry-detail-item">Inquiry response within 72 business hours</div>
+          <div class="inquiry-detail-item">Initial consultations are private and without obligation</div>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-1">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label>Brand / Company</label>
+            <input type="text" placeholder="Brand or company name">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Industry</label>
+            <select>
+              <option value="" disabled selected>Select your industry</option>
+              <option>Luxury Fashion</option>
+              <option>Luxury Beauty</option>
+              <option>Hospitality / Hotels</option>
+              <option>Luxury Wellness</option>
+              <option>Real Estate</option>
+              <option>Lifestyle Brand</option>
+              <option>Creator / Editorial Talent</option>
+              <option>Private Founder</option>
+              <option>Other Luxury Vertical</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" placeholder="your@email.com">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Website / Social Presence</label>
+          <input type="text" placeholder="URL, Instagram, or LinkedIn">
+        </div>
+
+        <div class="form-group">
+          <label>Service Interest</label>
+          <select>
+            <option value="" disabled selected>Primary area of interest</option>
+            <option>International Market Intelligence</option>
+            <option>Cultural Positioning Intelligence</option>
+            <option>Expansion Architecture</option>
+            <option>Strategic Partnerships</option>
+            <option>Strategic Access & Industry Placement</option>
+            <option>Campaign & Editorial Architecture</option>
+            <option>Luxury Visibility Strategy</option>
+            <option>Private Advisory Retainer</option>
+            <option>Multiple Services / Unsure</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Target Markets or Expansion Goals</label>
+          <input type="text" placeholder="e.g. Middle East, Europe, Southeast Asia...">
+        </div>
+
+        <div class="form-group">
+          <label>Tell Us About Your Brand & Inquiry</label>
+          <textarea placeholder="Share your brand overview, current situation, and what you are looking to achieve. The more specific, the better."></textarea>
+        </div>
+
+        <div class="form-submit">
+          <button class="btn-submit">Submit Private Inquiry</button>
+          <p class="form-privacy">Your inquiry is reviewed confidentially. We do not share, sell, or publicize client information. All communications are held with full discretion.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ═══════════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <span class="footer-brand-name">Santori<span>&nbsp;Reserve</span></span>
+        <p class="footer-tagline">A private luxury strategy house helping brands expand, position, and integrate into new markets through intelligence, partnerships, access, and cultural precision.</p>
+      </div>
+      <div>
+        <div class="footer-col-title">Navigation</div>
+        <ul class="footer-links">
+          <li><a href="#about">About the House</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#clients">Who We Work With</a></li>
+          <li><a href="#intelligence">Intelligence Desk</a></li>
+          <li><a href="#inquiry">Private Inquiry</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Services</div>
+        <ul class="footer-links">
+          <li><a href="#services">Market Intelligence</a></li>
+          <li><a href="#services">Cultural Positioning</a></li>
+          <li><a href="#services">Expansion Architecture</a></li>
+          <li><a href="#services">Strategic Partnerships</a></li>
+          <li><a href="#services">Private Advisory</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Inquiries</div>
+        <ul class="footer-links">
+          <li><a href="#inquiry">Private Inquiry Form</a></li>
+          <li><a href="#intelligence">Intelligence Access</a></li>
+          <li><a href="#inquiry">Advisory Retainer</a></li>
+        </ul>
+        <div style="margin-top: 32px;">
+          <div class="footer-col-title">Confidentiality</div>
+          <p style="font-size:0.65rem; color: var(--warm-grey); line-height:1.7; margin-top:4px;">All client relationships are strictly confidential. Santori Reserve operates under full discretion.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 Santori Reserve. All Rights Reserved. Private & Confidential.</div>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Engagement</a>
+        <a href="#">Confidentiality</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SCRIPTS -->
+<!-- ═══════════════════════════════════════════════════ -->
+<script>
+  // ─── CUSTOM CURSOR ───────────────────────────────────
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx - 4 + 'px';
+    cursor.style.top  = my - 4 + 'px';
+  });
+
+  function animRing() {
+    rx += (mx - rx - 18) * 0.12;
+    ry += (my - ry - 18) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top  = ry + 'px';
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('a, button, .service-card, .pillar, .client-item, .intel-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      ring.style.width  = '60px';
+      ring.style.height = '60px';
+      ring.style.opacity = '0.5';
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.style.width  = '36px';
+      ring.style.height = '36px';
+      ring.style.opacity = '1';
+    });
+  });
+
+  // ─── NAV SCROLL ──────────────────────────────────────
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ─── HAMBURGER ───────────────────────────────────────
+  const hamburger   = document.getElementById('hamburger');
+  const mobileMenu  = document.getElementById('mobileMenu');
+  const mobileClose = document.getElementById('mobileClose');
+
+  hamburger.addEventListener('click', () => mobileMenu.classList.add('open'));
+  mobileClose.addEventListener('click', () => mobileMenu.classList.remove('open'));
+
+  document.querySelectorAll('.mobile-link').forEach(link => {
+    link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  });
+
+  // ─── SCROLL REVEAL ───────────────────────────────────
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ─── SMOOTH ANCHOR SCROLL ────────────────────────────
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // ─── FORM SUBMIT ─────────────────────────────────────
+  document.querySelector('.btn-submit').addEventListener('click', function(e) {
+    this.textContent = 'Inquiry Received — Thank You';
+    this.style.background = '#2a2420';
+    this.style.color = 'var(--champagne)';
+    this.style.cursor = 'default';
+    this.disabled = true;
+  });
+</script>
+</body>
+</html>
