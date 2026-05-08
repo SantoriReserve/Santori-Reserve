@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inquiry Received — Santori Reserve</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --espresso: #1a1410;
+    --charcoal: #0f0e0c;
+    --ivory: #f5f0e8;
+    --champagne: #c9a96e;
+    --champagne-light: #e8d5a3;
+    --warm-grey: #8a8278;
+    --light-grey: #d4cfc8;
+    --dark-surface: #201c18;
+    --border: rgba(201,169,110,0.2);
+    --border-light: rgba(201,169,110,0.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--charcoal);
+    color: var(--ivory);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    color: var(--ivory);
+    text-decoration: none;
+    text-transform: uppercase;
+    margin-bottom: 80px;
+    display: block;
+  }
+  .logo span { color: var(--champagne); }
+
+  .eyebrow {
+    font-size: 0.55rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    font-weight: 400;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .eyebrow::before, .eyebrow::after {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--champagne);
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 6vw, 4.8rem);
+    font-weight: 300;
+    line-height: 1.08;
+    color: var(--ivory);
+    margin-bottom: 32px;
+  }
+  h1 em { font-style: italic; color: var(--champagne); }
+
+  .body-text {
+    font-size: 0.8rem;
+    color: var(--warm-grey);
+    line-height: 1.9;
+    max-width: 480px;
+    letter-spacing: 0.02em;
+    margin-bottom: 56px;
+  }
+
+  .return-link {
+    display: inline-block;
+    padding: 18px 48px;
+    background: var(--champagne);
+    color: var(--charcoal);
+    text-decoration: none;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-weight: 500;
+    transition: background 0.3s;
+  }
+  .return-link:hover { background: var(--champagne-light); }
+
+  .footer-note {
+    margin-top: 80px;
+    font-size: 0.58rem;
+    color: var(--warm-grey);
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+
+  <a href="/" class="logo">Santori<span>&nbsp;Reserve</span></a>
+
+  <div class="eyebrow">Inquiry Received</div>
+
+  <h1>
+    Your Inquiry<br>Has Been <em>Submitted.</em>
+  </h1>
+
+  <p class="body-text">
+    Thank you for reaching out to Santori Reserve. Our team personally reviews every inquiry for strategic alignment. You will receive a response within 72 business hours.
+  </p>
+
+  <a href="/" class="return-link">Return to Santori Reserve</a>
+
+  <p class="footer-note">© 2026 Santori Reserve. All Rights Reserved.</p>
+
+</body>
+</html>

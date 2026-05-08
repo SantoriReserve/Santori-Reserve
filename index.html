@@ -1537,8 +1537,8 @@
         </div>
       </div>
 
-      <form id="inquiry-form" name="inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field" class="reveal reveal-delay-1">
-        <input type="hidden" name="form-name" value="inquiry">
+      <form id="inquiry-form" name="private-inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/thank-you" class="reveal reveal-delay-1">
+        <input type="hidden" name="form-name" value="private-inquiry">
         <p style="display:none"><label>Don't fill this out: <input name="bot-field"></label></p>
 
         <div class="form-row">
@@ -1747,28 +1747,6 @@
     });
   });
 
-  // ─── FORM SUBMIT ─────────────────────────────────────
-  const inquiryForm = document.getElementById('inquiry-form');
-  inquiryForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = this.querySelector('.btn-submit');
-    try {
-      const response = await fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams(new FormData(this)).toString()
-      });
-      if (response.ok) {
-        btn.textContent = 'Inquiry Received — Thank You';
-        btn.style.background = '#2a2420';
-        btn.style.color = 'var(--champagne)';
-        btn.style.cursor = 'default';
-        btn.disabled = true;
-      }
-    } catch (err) {
-      this.submit();
-    }
-  });
 </script>
 </body>
 </html>
