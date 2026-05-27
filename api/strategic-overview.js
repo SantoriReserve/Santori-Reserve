@@ -4,6 +4,16 @@ function json(res, status, body) {
   res.end(JSON.stringify(body));
 }
 
+function withMeta(result, source) {
+  return {
+    status: 'ready',
+    source,
+    generatedAt: new Date().toISOString(),
+    summary: result.summary,
+    cards: result.cards
+  };
+}
+
 function parseAiResponse(content) {
   try {
     const parsed = JSON.parse(content);
@@ -185,13 +195,22 @@ export default async function handler(req, res) {
   try {
     const assessment = req.body && req.body.assessment ? req.body.assessment : req.body;
     const makeResult = await generateViaMake(assessment);
-    if (makeResult) return json(res, 200, makeResult);
+    if (makeResult) return json(res, 200, withMeta(makeResult, 'make'));
 
     const openAiResult = await generateViaOpenAI(assessment);
-    if (openAiResult) return json(res, 200, openAiResult);
+    if (openAiResult) return json(res, 200, withMeta(openAiResult, 'openai'));
 
-    return json(res, 200, fallbackResult());
+    if (process.env.ALLOW_LOCAL_FALLBACK_OVERVIEW === 'true') {
+      return json(res, 200, withMeta(fallbackResult(), 'fallback'));
+    }
+    return json(res, 202, {
+      status: 'pending',
+      message: 'Strategic overview is still being generated. Please retry shortly.'
+    });
   } catch (_error) {
-    return json(res, 200, fallbackResult());
+    return json(res, 202, {
+      status: 'pending',
+      message: 'Strategic overview generation is in progress. Please retry shortly.'
+    });
   }
 }

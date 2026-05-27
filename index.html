@@ -1231,6 +1231,9 @@
     opacity: 0.55;
     cursor: not-allowed;
   }
+  .assessment-complete.is-hidden {
+    display: none;
+  }
   .assessment-results {
     display: none;
     height: 100%;
@@ -1505,8 +1508,8 @@
       </div>
     </div>
     <div class="assessment-footer">
-      <p id="assessmentStatusText">Submit your completed assessment to generate your strategic overview.</p>
-      <button type="button" class="assessment-complete" id="completeAssessmentBtn" disabled>Awaiting Fillout Submission</button>
+      <p id="assessmentStatusText">Submit your completed assessment to generate your strategic overview automatically.</p>
+      <button type="button" class="assessment-complete is-hidden" id="completeAssessmentBtn" disabled aria-hidden="true">Awaiting Fillout Submission</button>
     </div>
     <div class="assessment-results" id="assessmentResults">
       <div class="cinematic-loader" id="cinematicLoader">
@@ -2115,14 +2118,8 @@
 <!-- ═══════════════════════════════════════════════════ -->
 <script>
   const STRATEGIC_API_ENDPOINT = '/api/strategic-overview';
-  const FALLBACK_OVERVIEW = {
-    summary: 'Your brand shows strong positioning potential in premium markets. Near-term gains are likely from tightening message architecture, sequencing expansion by market readiness, and codifying strategic visibility partnerships.',
-    cards: [
-      { title: 'Positioning Priority', body: 'Refine a singular luxury narrative with stronger proof points tied to heritage, scarcity, and market authority.' },
-      { title: 'Expansion Priority', body: 'Sequence market entry in two phases: first where cultural alignment is highest, then where media leverage compounds.' },
-      { title: 'Visibility Priority', body: 'Build an editorial-partnership engine that translates prestige signals into conversion-ready trust.' }
-    ]
-  };
+  const OVERVIEW_POLL_ATTEMPTS = 12;
+  const OVERVIEW_POLL_INTERVAL_MS = 1500;
 
   // ─── CUSTOM CURSOR ───────────────────────────────────
   const cursor = document.getElementById('cursor');
@@ -2211,7 +2208,9 @@
   const statusText = document.getElementById('assessmentStatusText');
   const blueprintBtn = document.getElementById('blueprintBtn');
   const frame = document.getElementById('assessmentFrame');
+  const loadingCopy = document.querySelector('.loading-copy');
   let latestAssessmentPayload = null;
+  let latestGeneratedOverview = null;
   let isGeneratingOverview = false;
   let hasValidatedSubmission = false;
 
@@ -2231,11 +2230,13 @@
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     shell.classList.remove('state-loading', 'state-results', 'fade-to-results');
-    statusText.textContent = 'Submit your completed assessment to generate your strategic overview.';
+    statusText.textContent = 'Submit your completed assessment to generate your strategic overview automatically.';
     completeBtn.textContent = 'Awaiting Fillout Submission';
     completeBtn.disabled = true;
+    completeBtn.classList.add('is-hidden');
     latestAssessmentPayload = null;
     hasValidatedSubmission = false;
+    loadingCopy.textContent = 'Crafting your strategic overview...';
     setBodyLock(true);
   }
 
@@ -2246,10 +2247,9 @@
   }
 
   function renderOverview(payload) {
-    const safePayload = payload && Array.isArray(payload.cards) ? payload : FALLBACK_OVERVIEW;
-    resultsSummary.textContent = safePayload.summary || FALLBACK_OVERVIEW.summary;
+    resultsSummary.textContent = payload.summary || '';
     cardsContainer.innerHTML = '';
-    safePayload.cards.slice(0, 6).forEach(card => {
+    payload.cards.slice(0, 6).forEach(card => {
       const node = document.createElement('article');
       node.className = 'overview-card';
       const title = document.createElement('h4');
@@ -2263,22 +2263,21 @@
   }
 
   async function fetchStrategicOverview(payload) {
-    try {
-      const res = await fetch(STRATEGIC_API_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload || {})
-      });
-      if (!res.ok) throw new Error('Unable to generate overview.');
-      const json = await res.json();
-      if (!json || !json.summary || !Array.isArray(json.cards)) throw new Error('Malformed response.');
-      return json;
-    } catch (error) {
-      return FALLBACK_OVERVIEW;
+    const res = await fetch(STRATEGIC_API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload || {})
+    });
+    const json = await res.json().catch(() => ({}));
+    if (res.status === 202 || json.status === 'pending') return { status: 'pending' };
+    if (!res.ok) throw new Error('Unable to generate overview.');
+    if (!json || typeof json.summary !== 'string' || !Array.isArray(json.cards)) {
+      throw new Error('Malformed response.');
     }
+    return { status: 'ready', data: json };
   }
 
-  async function startStrategicLoading() {
+  async function showLoadingState() {
     if (!hasValidatedSubmission || isGeneratingOverview) return;
     isGeneratingOverview = true;
     completeBtn.disabled = true;
@@ -2287,12 +2286,45 @@
     await new Promise(resolve => setTimeout(resolve, 420));
     shell.classList.add('state-loading');
     resultsRoot.scrollTop = 0;
-    const overview = await fetchStrategicOverview({ assessment: latestAssessmentPayload });
-    renderOverview(overview);
-    await new Promise(resolve => setTimeout(resolve, 1300));
-    shell.classList.remove('state-loading');
-    shell.classList.add('state-results');
-    resultsRoot.scrollTop = 0;
+  }
+
+  async function generateStrategicOverview() {
+    let attempt = 0;
+    while (attempt < OVERVIEW_POLL_ATTEMPTS) {
+      const result = await fetchStrategicOverview({ assessment: latestAssessmentPayload });
+      if (result.status === 'ready') return result.data;
+      attempt += 1;
+      const dots = '.'.repeat((attempt % 3) + 1);
+      loadingCopy.textContent = `Generating Strategic Overview${dots}`;
+      await new Promise(resolve => setTimeout(resolve, OVERVIEW_POLL_INTERVAL_MS));
+    }
+    throw new Error('Timed out waiting for generated overview.');
+  }
+
+  async function startStrategicLoading() {
+    await showLoadingState();
+    const startedAt = Date.now();
+    loadingCopy.textContent = 'Generating Strategic Overview...';
+    try {
+      const overview = await generateStrategicOverview();
+      latestGeneratedOverview = overview;
+      renderOverview(overview);
+      const minCinematicDuration = 2400;
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < minCinematicDuration) {
+        await new Promise(resolve => setTimeout(resolve, minCinematicDuration - elapsed));
+      }
+      shell.classList.remove('state-loading');
+      shell.classList.add('state-results');
+      resultsRoot.scrollTop = 0;
+      statusText.textContent = 'Strategic overview generated from your assessment responses.';
+    } catch (_error) {
+      loadingCopy.textContent = 'Finalizing your strategic overview...';
+      statusText.textContent = 'Your strategic overview is still processing. Please stay on this screen.';
+      await new Promise(resolve => setTimeout(resolve, 2400));
+      isGeneratingOverview = false;
+      return;
+    }
     isGeneratingOverview = false;
   }
 
@@ -2305,9 +2337,6 @@
   });
 
   returnBtn.addEventListener('click', closeAssessmentOverlay);
-  completeBtn.addEventListener('click', () => {
-    if (hasValidatedSubmission) startStrategicLoading();
-  });
   blueprintBtn.addEventListener('click', () => {
     closeAssessmentOverlay();
   });
@@ -2323,26 +2352,60 @@
     }
   });
 
+  function parseMessageData(rawData) {
+    if (typeof rawData === 'string') {
+      try {
+        return JSON.parse(rawData);
+      } catch (_error) {
+        return { type: rawData };
+      }
+    }
+    return rawData;
+  }
+
   function extractFilloutSubmissionPayload(data) {
-    if (!data || typeof data !== 'object') return null;
-    const messageType = String(data.event || data.type || data.name || '').toLowerCase();
-    const looksLikeSubmission = /(submit|submission|complete|completed|finish|finished)/.test(messageType);
-    const payload = data.response || data.payload || data.data || null;
-    const hasAnswers = payload && typeof payload === 'object';
-    if (!looksLikeSubmission || !hasAnswers) return null;
+    const parsed = parseMessageData(data);
+    if (!parsed || typeof parsed !== 'object') return null;
+
+    const joinedSignals = [
+      parsed.event,
+      parsed.type,
+      parsed.name,
+      parsed.action,
+      parsed.message,
+      parsed.status,
+      parsed.eventName
+    ]
+      .map(value => String(value || '').toLowerCase())
+      .join(' ');
+    const looksLikeSubmission = /(submit|submission|complete|completed|finish|finished|success|form_submitted)/.test(joinedSignals);
+    if (!looksLikeSubmission) return null;
+
+    const payload =
+      parsed.response ||
+      parsed.payload ||
+      parsed.data ||
+      parsed.submission ||
+      parsed.answers ||
+      parsed.formData ||
+      {};
+    if (!payload || typeof payload !== 'object') return null;
     return payload;
   }
 
   window.addEventListener('message', event => {
-    const trustedOrigin = event.origin.includes('fillout.com');
+    let trustedOrigin = false;
+    try {
+      trustedOrigin = /(^|\.)fillout\.com$/.test((new URL(event.origin)).hostname);
+    } catch (_error) {
+      trustedOrigin = false;
+    }
     if (!trustedOrigin || !event.data) return;
     const submissionPayload = extractFilloutSubmissionPayload(event.data);
     if (!submissionPayload || isGeneratingOverview || hasValidatedSubmission) return;
     latestAssessmentPayload = submissionPayload;
     hasValidatedSubmission = true;
-    statusText.textContent = 'Submission received. Preparing your strategic overview...';
-    completeBtn.textContent = 'Generating Strategic Overview...';
-    completeBtn.disabled = true;
+    statusText.textContent = 'Submission received. Generating Strategic Overview...';
     startStrategicLoading();
   });
 
