@@ -2272,6 +2272,23 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ assessment: payload || {}, requestId })
     });
+    if (json.overview) {
+  document.getElementById("overviewText").innerText = json.overview || "";
+  document.getElementById("positioningPriority").innerText = json.positioning_priority || "";
+  document.getElementById("expansionPriority").innerText = json.expansion_priority || "";
+  document.getElementById("visibilityPriority").innerText = json.visibility_priority || "";
+  document.getElementById("marketPotential").innerText = json.market_potential || "";
+  document.getElementById("revenuePotential").innerText = json.revenue_potential || "";
+  document.getElementById("blueprintText").innerText = json.blueprint || "";
+
+  document.getElementById("loadingScreen").style.display = "none";
+  document.getElementById("strategicOverview").style.display = "block";
+
+  return {
+    status: "complete",
+    payload: json
+  };
+}
     const json = await res.json().catch(() => ({}));
     if (res.status === 202 || json.status === 'pending') {
       return {
