@@ -1041,6 +1041,33 @@
     border-bottom: 1px solid rgba(201,169,110,0.35);
     padding-bottom: 6px;
   }
+  .assessment-inline {
+    padding: 90px 0 86px;
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    background: linear-gradient(180deg, rgba(25,21,17,0.8), rgba(18,15,12,0.92));
+  }
+  .assessment-inline-inner {
+    display: grid;
+    gap: 18px;
+    justify-items: center;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .assessment-inline h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4.8vw, 3.5rem);
+    font-weight: 300;
+    line-height: 1.08;
+  }
+  .assessment-inline h2 em { color: var(--champagne); font-style: italic; }
+  .assessment-inline p {
+    font-size: 0.72rem;
+    color: var(--warm-grey);
+    line-height: 1.9;
+    max-width: 760px;
+  }
   .assessment-launch::before {
     content: '';
     width: 32px;
@@ -1466,7 +1493,7 @@
           id="assessmentFrame"
           class="assessment-frame"
           title="Santori Reserve Strategic Assessment"
-          src="https://form.fillout.com/t/8bHkFJasfAus?transparentBackground=1"
+          src="https://forms.fillout.com/t/rQVdTg5Eo6us"
           loading="lazy"
           allow="clipboard-write"
         ></iframe>
@@ -1548,6 +1575,18 @@
   <div class="scroll-indicator">
     <span>Scroll</span>
     <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- STRATEGIC ASSESSMENT SECTION -->
+<section class="assessment-inline">
+  <div class="container">
+    <div class="assessment-inline-inner reveal">
+      <div class="section-label" style="justify-content:center;">Strategic Assessment</div>
+      <h2>Begin Your Private <em>Strategic Onboarding</em></h2>
+      <p>Complete the Santori Reserve assessment to unlock your AI-generated strategic overview and next-step recommendations without leaving this immersive experience.</p>
+      <a href="#" class="btn-primary js-open-assessment">Launch Strategic Assessment</a>
+    </div>
   </div>
 </section>
 
@@ -2250,6 +2289,11 @@
       closeAssessmentOverlay();
     }
   });
+  overlay.addEventListener('click', event => {
+    if (event.target === overlay) {
+      closeAssessmentOverlay();
+    }
+  });
 
   window.addEventListener('message', event => {
     const trustedOrigin = event.origin.includes('fillout.com');
@@ -2262,9 +2306,7 @@
   });
 
   // allow environment-level override for Fillout URL without code edits
-  if (window.SANTORI_FILLOUT_URL && typeof window.SANTORI_FILLOUT_URL === 'string') {
-    frame.src = window.SANTORI_FILLOUT_URL;
-  }
+  if (window.SANTORI_FILLOUT_URL && typeof window.SANTORI_FILLOUT_URL === 'string') frame.src = window.SANTORI_FILLOUT_URL;
 
 </script>
 </body>
