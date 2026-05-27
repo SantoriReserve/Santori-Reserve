@@ -1101,7 +1101,7 @@
     position: relative;
     z-index: 1;
     width: min(1160px, calc(100% - 60px));
-    height: calc(100vh - 78px);
+    height: calc(var(--app-vh, 1vh) * 100 - 78px);
     margin: 39px auto;
     border: 1px solid var(--border);
     background: linear-gradient(180deg, rgba(35,30,25,0.96), rgba(22,18,15,0.95));
@@ -1194,6 +1194,7 @@
   .assessment-frame-wrap {
     position: relative;
     min-height: 0;
+    overflow: hidden;
   }
   .assessment-frame {
     width: 100%;
@@ -1225,6 +1226,10 @@
     letter-spacing: 0.22em;
     text-transform: uppercase;
     font-weight: 500;
+  }
+  .assessment-complete[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
   }
   .assessment-results {
     display: none;
@@ -1390,7 +1395,7 @@
     .footer-top { grid-template-columns: 1fr 1fr; gap: 48px; }
     .assessment-content { grid-template-columns: 1fr; }
     .assessment-intro { border-right: 0; border-bottom: 1px solid var(--border-light); }
-    .assessment-shell { width: calc(100% - 36px); margin: 18px auto; height: calc(100vh - 36px); }
+    .assessment-shell { width: calc(100% - 36px); margin: 18px auto; height: calc(var(--app-vh, 1vh) * 100 - 36px); }
     .overview-cards { grid-template-columns: 1fr 1fr; }
     .blueprint-conversion { grid-template-columns: 1fr; }
   }
@@ -1500,8 +1505,8 @@
       </div>
     </div>
     <div class="assessment-footer">
-      <p>After submitting your assessment, continue to generate your strategic overview.</p>
-      <button type="button" class="assessment-complete" id="completeAssessmentBtn">I Completed the Assessment</button>
+      <p id="assessmentStatusText">Submit your completed assessment to generate your strategic overview.</p>
+      <button type="button" class="assessment-complete" id="completeAssessmentBtn" disabled>Awaiting Fillout Submission</button>
     </div>
     <div class="assessment-results" id="assessmentResults">
       <div class="cinematic-loader" id="cinematicLoader">
@@ -1554,7 +1559,7 @@
       <a href="#inquiry" class="btn-primary">Request Private Access</a>
       <a href="#services" class="btn-secondary">Explore Services</a>
     </div>
-    <a href="#" class="assessment-launch js-open-assessment">Launch Strategic Assessment</a>
+    <a href="#" class="assessment-launch js-open-assessment">Begin Strategic Assessment</a>
   </div>
 
   <div class="hero-bottom">
@@ -1585,7 +1590,7 @@
       <div class="section-label" style="justify-content:center;">Strategic Assessment</div>
       <h2>Begin Your Private <em>Strategic Onboarding</em></h2>
       <p>Complete the Santori Reserve assessment to unlock your AI-generated strategic overview and next-step recommendations without leaving this immersive experience.</p>
-      <a href="#" class="btn-primary js-open-assessment">Launch Strategic Assessment</a>
+      <a href="#" class="btn-primary js-open-assessment">Begin Strategic Assessment</a>
     </div>
   </div>
 </section>
@@ -2203,18 +2208,34 @@
   const cardsContainer = document.getElementById('overviewCards');
   const returnBtn = document.getElementById('returnToSiteBtn');
   const completeBtn = document.getElementById('completeAssessmentBtn');
+  const statusText = document.getElementById('assessmentStatusText');
   const blueprintBtn = document.getElementById('blueprintBtn');
   const frame = document.getElementById('assessmentFrame');
   let latestAssessmentPayload = null;
+  let isGeneratingOverview = false;
+  let hasValidatedSubmission = false;
+
+  function setViewportHeightVar() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--app-vh', vh + 'px');
+  }
+  setViewportHeightVar();
+  window.addEventListener('resize', setViewportHeightVar);
 
   function setBodyLock(locked) {
     body.style.overflow = locked ? 'hidden' : '';
+    body.style.touchAction = locked ? 'none' : '';
   }
 
   function openAssessmentOverlay() {
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden', 'false');
     shell.classList.remove('state-loading', 'state-results', 'fade-to-results');
+    statusText.textContent = 'Submit your completed assessment to generate your strategic overview.';
+    completeBtn.textContent = 'Awaiting Fillout Submission';
+    completeBtn.disabled = true;
+    latestAssessmentPayload = null;
+    hasValidatedSubmission = false;
     setBodyLock(true);
   }
 
@@ -2258,6 +2279,10 @@
   }
 
   async function startStrategicLoading() {
+    if (!hasValidatedSubmission || isGeneratingOverview) return;
+    isGeneratingOverview = true;
+    completeBtn.disabled = true;
+    statusText.textContent = 'Generating Strategic Overview...';
     shell.classList.add('fade-to-results');
     await new Promise(resolve => setTimeout(resolve, 420));
     shell.classList.add('state-loading');
@@ -2268,6 +2293,7 @@
     shell.classList.remove('state-loading');
     shell.classList.add('state-results');
     resultsRoot.scrollTop = 0;
+    isGeneratingOverview = false;
   }
 
   document.querySelectorAll('.js-open-assessment').forEach(trigger => {
@@ -2279,7 +2305,9 @@
   });
 
   returnBtn.addEventListener('click', closeAssessmentOverlay);
-  completeBtn.addEventListener('click', startStrategicLoading);
+  completeBtn.addEventListener('click', () => {
+    if (hasValidatedSubmission) startStrategicLoading();
+  });
   blueprintBtn.addEventListener('click', () => {
     closeAssessmentOverlay();
   });
@@ -2295,14 +2323,27 @@
     }
   });
 
+  function extractFilloutSubmissionPayload(data) {
+    if (!data || typeof data !== 'object') return null;
+    const messageType = String(data.event || data.type || data.name || '').toLowerCase();
+    const looksLikeSubmission = /(submit|submission|complete|completed|finish|finished)/.test(messageType);
+    const payload = data.response || data.payload || data.data || null;
+    const hasAnswers = payload && typeof payload === 'object';
+    if (!looksLikeSubmission || !hasAnswers) return null;
+    return payload;
+  }
+
   window.addEventListener('message', event => {
     const trustedOrigin = event.origin.includes('fillout.com');
     if (!trustedOrigin || !event.data) return;
-    const messageType = event.data.event || event.data.type || '';
-    if (messageType.includes('submission') || messageType.includes('complete')) {
-      latestAssessmentPayload = event.data.response || event.data.payload || event.data;
-      startStrategicLoading();
-    }
+    const submissionPayload = extractFilloutSubmissionPayload(event.data);
+    if (!submissionPayload || isGeneratingOverview || hasValidatedSubmission) return;
+    latestAssessmentPayload = submissionPayload;
+    hasValidatedSubmission = true;
+    statusText.textContent = 'Submission received. Preparing your strategic overview...';
+    completeBtn.textContent = 'Generating Strategic Overview...';
+    completeBtn.disabled = true;
+    startStrategicLoading();
   });
 
   // allow environment-level override for Fillout URL without code edits
