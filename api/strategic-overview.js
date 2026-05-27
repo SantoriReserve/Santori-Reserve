@@ -10,6 +10,17 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
+    document.getElementById("overviewText").innerText = data.overview || "";
+    document.getElementById("positioningPriority").innerText = data.positioning_priority || "";
+    document.getElementById("expansionPriority").innerText = data.expansion_priority || "";
+    document.getElementById("visibilityPriority").innerText = data.visibility_priority || "";
+    document.getElementById("marketPotential").innerText = data.market_potential || "";
+    document.getElementById("revenuePotential").innerText = data.revenue_potential || "";
+    document.getElementById("blueprintText").innerText = data.blueprint || "";
+    
+    document.getElementById("loadingScreen").style.display = "none";
+    document.getElementById("strategicOverview").style.display = "block";
+
     return res.status(200).json(data);
 
   } catch (error) {
