@@ -2211,6 +2211,8 @@
   const loadingCopy = document.querySelector('.loading-copy');
   let latestAssessmentPayload = null;
   let latestGeneratedOverview = null;
+  let latestOverviewRequestId = null;
+  let latestOverviewJobId = null;
   let isGeneratingOverview = false;
   let hasValidatedSubmission = false;
 
@@ -2235,6 +2237,8 @@
     completeBtn.disabled = true;
     completeBtn.classList.add('is-hidden');
     latestAssessmentPayload = null;
+    latestOverviewRequestId = null;
+    latestOverviewJobId = null;
     hasValidatedSubmission = false;
     loadingCopy.textContent = 'Crafting your strategic overview...';
     setBodyLock(true);
@@ -2262,17 +2266,43 @@
     });
   }
 
-  async function fetchStrategicOverview(payload) {
+  async function startStrategicOverviewGeneration(payload, requestId) {
     const res = await fetch(STRATEGIC_API_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload || {})
+      body: JSON.stringify({ assessment: payload || {}, requestId })
     });
     const json = await res.json().catch(() => ({}));
-    if (res.status === 202 || json.status === 'pending') return { status: 'pending' };
+    if (res.status === 202 || json.status === 'pending') {
+      return {
+        status: 'pending',
+        requestId: json.requestId || requestId,
+        jobId: json.jobId || null
+      };
+    }
     if (!res.ok) throw new Error('Unable to generate overview.');
     if (!json || typeof json.summary !== 'string' || !Array.isArray(json.cards)) {
       throw new Error('Malformed response.');
+    }
+    return { status: 'ready', data: json };
+  }
+
+  async function fetchStrategicOverviewStatus(requestId, jobId) {
+    const statusUrl = new URL(STRATEGIC_API_ENDPOINT, window.location.origin);
+    statusUrl.searchParams.set('requestId', requestId);
+    if (jobId) statusUrl.searchParams.set('jobId', jobId);
+    const res = await fetch(statusUrl.toString(), { method: 'GET' });
+    const json = await res.json().catch(() => ({}));
+    if (res.status === 202 || json.status === 'pending') {
+      return {
+        status: 'pending',
+        requestId: json.requestId || requestId,
+        jobId: json.jobId || jobId || null
+      };
+    }
+    if (!res.ok) throw new Error('Unable to retrieve generated overview.');
+    if (!json || typeof json.summary !== 'string' || !Array.isArray(json.cards)) {
+      throw new Error('Malformed status response.');
     }
     return { status: 'ready', data: json };
   }
@@ -2289,10 +2319,24 @@
   }
 
   async function generateStrategicOverview() {
+    if (!latestAssessmentPayload) throw new Error('Missing assessment payload.');
+    if (!latestOverviewRequestId) {
+      latestOverviewRequestId = (window.crypto && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : `sr_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+
+    const startResponse = await startStrategicOverviewGeneration(latestAssessmentPayload, latestOverviewRequestId);
+    if (startResponse.status === 'ready') return startResponse.data;
+    if (startResponse.requestId) latestOverviewRequestId = startResponse.requestId;
+    if (startResponse.jobId) latestOverviewJobId = startResponse.jobId;
+
     let attempt = 0;
-    while (attempt < OVERVIEW_POLL_ATTEMPTS) {
-      const result = await fetchStrategicOverview({ assessment: latestAssessmentPayload });
+    while (attempt < OVERVIEW_POLL_ATTEMPTS * 2) {
+      const result = await fetchStrategicOverviewStatus(latestOverviewRequestId, latestOverviewJobId);
       if (result.status === 'ready') return result.data;
+      latestOverviewRequestId = result.requestId || latestOverviewRequestId;
+      latestOverviewJobId = result.jobId || latestOverviewJobId;
       attempt += 1;
       const dots = '.'.repeat((attempt % 3) + 1);
       loadingCopy.textContent = `Generating Strategic Overview${dots}`;
@@ -2404,6 +2448,13 @@
     const submissionPayload = extractFilloutSubmissionPayload(event.data);
     if (!submissionPayload || isGeneratingOverview || hasValidatedSubmission) return;
     latestAssessmentPayload = submissionPayload;
+    latestOverviewRequestId =
+      submissionPayload.submissionId ||
+      submissionPayload.submission_id ||
+      submissionPayload.submissionUuid ||
+      submissionPayload.submission_uuid ||
+      null;
+    latestOverviewJobId = null;
     hasValidatedSubmission = true;
     statusText.textContent = 'Submission received. Generating Strategic Overview...';
     startStrategicLoading();

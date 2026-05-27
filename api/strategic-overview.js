@@ -14,6 +14,33 @@ function withMeta(result, source) {
   };
 }
 
+function parseGeneratedResult(data) {
+  if (!data || typeof data !== 'object') return null;
+
+  const candidates = [
+    data,
+    data.result,
+    data.output,
+    data.data,
+    data.overview,
+    data.strategicOverview,
+    data.aiResponse
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate.summary === 'string' && Array.isArray(candidate.cards)) {
+      return {
+        summary: candidate.summary,
+        cards: candidate.cards.map((card) => ({
+          title: String(card.title || 'Strategic Lens'),
+          body: String(card.body || '')
+        }))
+      };
+    }
+  }
+  return null;
+}
+
 function parseAiResponse(content) {
   try {
     const parsed = JSON.parse(content);
@@ -146,15 +173,7 @@ async function generateViaMake(assessment) {
 
   if (!response.ok) return null;
   const data = await response.json().catch(() => null);
-  if (!data || typeof data.summary !== 'string' || !Array.isArray(data.cards)) return null;
-
-  return {
-    summary: data.summary,
-    cards: data.cards.map((card) => ({
-      title: String(card.title || 'Strategic Lens'),
-      body: String(card.body || '')
-    }))
-  };
+  return parseGeneratedResult(data);
 }
 
 function fallbackResult() {
@@ -187,15 +206,80 @@ function fallbackResult() {
 }
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
+  if (!['POST', 'GET'].includes(req.method)) {
+    res.setHeader('Allow', 'POST, GET');
     return json(res, 405, { error: 'Method not allowed' });
   }
 
   try {
+    if (req.method === 'GET') {
+      const requestId = req.query && req.query.requestId ? String(req.query.requestId) : '';
+      const jobId = req.query && req.query.jobId ? String(req.query.jobId) : '';
+      if (!requestId) {
+        return json(res, 400, { error: 'Missing requestId' });
+      }
+
+      const makeStatusUrl = process.env.MAKE_STATUS_URL;
+      const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
+
+      if (makeStatusUrl) {
+        const statusUrl = new URL(makeStatusUrl);
+        statusUrl.searchParams.set('requestId', requestId);
+        if (jobId) statusUrl.searchParams.set('jobId', jobId);
+
+        const statusRes = await fetch(statusUrl.toString(), { method: 'GET' });
+        const statusData = await statusRes.json().catch(() => ({}));
+        const readyFromStatus = parseGeneratedResult(statusData);
+        if (readyFromStatus) return json(res, 200, withMeta(readyFromStatus, 'make'));
+      } else if (makeWebhookUrl) {
+        // Fallback polling path: call the same Make webhook in status mode.
+        const statusRes = await fetch(makeWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'status', requestId, jobId })
+        });
+        const statusData = await statusRes.json().catch(() => ({}));
+        const readyFromWebhook = parseGeneratedResult(statusData);
+        if (readyFromWebhook) return json(res, 200, withMeta(readyFromWebhook, 'make'));
+      }
+
+      return json(res, 202, {
+        status: 'pending',
+        requestId,
+        jobId: jobId || null,
+        message: 'Strategic overview is still being generated. Please retry shortly.'
+      });
+    }
+
     const assessment = req.body && req.body.assessment ? req.body.assessment : req.body;
-    const makeResult = await generateViaMake(assessment);
-    if (makeResult) return json(res, 200, withMeta(makeResult, 'make'));
+    const requestId =
+      (req.body && req.body.requestId && String(req.body.requestId)) ||
+      `sr_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    const makeWebhookUrl = process.env.MAKE_WEBHOOK_URL;
+
+    if (makeWebhookUrl) {
+      const makeStartRes = await fetch(makeWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          source: 'santori-reserve-web',
+          mode: 'start',
+          requestId,
+          timestamp: new Date().toISOString(),
+          assessment
+        })
+      });
+      const makeStartData = await makeStartRes.json().catch(() => ({}));
+      const readyFromStart = parseGeneratedResult(makeStartData);
+      if (readyFromStart) return json(res, 200, withMeta(readyFromStart, 'make'));
+
+      return json(res, 202, {
+        status: 'pending',
+        requestId: String(makeStartData.requestId || requestId),
+        jobId: makeStartData.jobId ? String(makeStartData.jobId) : null,
+        message: 'Strategic overview generation started.'
+      });
+    }
 
     const openAiResult = await generateViaOpenAI(assessment);
     if (openAiResult) return json(res, 200, withMeta(openAiResult, 'openai'));
