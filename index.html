@@ -1027,6 +1027,324 @@
     100% { transform: translateX(-50%); }
   }
 
+  /* ─── IMMERSIVE STRATEGIC ASSESSMENT ─────────────── */
+  .assessment-launch {
+    margin-top: 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--champagne-light);
+    text-decoration: none;
+    font-size: 0.56rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(201,169,110,0.35);
+    padding-bottom: 6px;
+  }
+  .assessment-launch::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--champagne);
+  }
+  .assessment-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: radial-gradient(circle at 50% 18%, rgba(201,169,110,0.16), transparent 46%), rgba(12,10,8,0.98);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.7s ease, visibility 0.7s ease;
+  }
+  .assessment-overlay.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .assessment-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.84' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .assessment-shell {
+    position: relative;
+    z-index: 1;
+    width: min(1160px, calc(100% - 60px));
+    height: calc(100vh - 78px);
+    margin: 39px auto;
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(35,30,25,0.96), rgba(22,18,15,0.95));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .assessment-shell.fade-to-results .assessment-intro,
+  .assessment-shell.fade-to-results .assessment-frame-wrap,
+  .assessment-shell.fade-to-results .assessment-footer {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.45s ease, transform 0.45s ease;
+  }
+  .assessment-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border-light);
+    background: rgba(15,14,12,0.82);
+  }
+  .assessment-title {
+    font-size: 0.55rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--light-grey);
+  }
+  .return-site {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--ivory);
+    padding: 10px 16px;
+    font-size: 0.53rem;
+    letter-spacing: 0.19em;
+    text-transform: uppercase;
+  }
+  .assessment-content {
+    display: grid;
+    grid-template-columns: minmax(300px, 31%) 1fr;
+    min-height: 0;
+    flex: 1;
+  }
+  .assessment-intro {
+    border-right: 1px solid var(--border-light);
+    padding: 40px 32px;
+    overflow-y: auto;
+  }
+  .assessment-intro h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.1rem, 3.3vw, 3rem);
+    font-weight: 300;
+    line-height: 1.04;
+    margin-bottom: 20px;
+  }
+  .assessment-intro h3 em {
+    color: var(--champagne);
+    font-style: italic;
+  }
+  .assessment-intro p {
+    color: var(--warm-grey);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+    line-height: 1.9;
+    margin-bottom: 18px;
+  }
+  .assessment-intro ul {
+    list-style: none;
+    margin-top: 24px;
+    display: grid;
+    gap: 10px;
+  }
+  .assessment-intro li {
+    color: var(--light-grey);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .assessment-intro li::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--champagne);
+  }
+  .assessment-frame-wrap {
+    position: relative;
+    min-height: 0;
+  }
+  .assessment-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: rgba(16,14,11,0.8);
+  }
+  .assessment-footer {
+    border-top: 1px solid var(--border-light);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: rgba(15,14,12,0.88);
+  }
+  .assessment-footer p {
+    font-size: 0.58rem;
+    color: var(--warm-grey);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .assessment-complete {
+    border: 1px solid var(--champagne);
+    background: var(--champagne);
+    color: var(--charcoal);
+    padding: 12px 16px;
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .assessment-results {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+    padding: 44px clamp(22px, 3vw, 40px) 46px;
+  }
+  .assessment-shell.state-loading .assessment-results,
+  .assessment-shell.state-results .assessment-results {
+    display: block;
+  }
+  .assessment-shell.state-loading .assessment-content,
+  .assessment-shell.state-loading .assessment-footer,
+  .assessment-shell.state-results .assessment-content,
+  .assessment-shell.state-results .assessment-footer {
+    display: none;
+  }
+  .cinematic-loader {
+    border: 1px solid var(--border-light);
+    background: rgba(25,22,18,0.64);
+    min-height: 360px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 30px 24px;
+  }
+  .pulse-ring {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,169,110,0.7);
+    margin: 0 auto 22px;
+    position: relative;
+    animation: pulse 1.9s ease-in-out infinite;
+  }
+  .pulse-ring::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,169,110,0.24);
+    animation: pulseOuter 1.9s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(0.92); opacity: 0.5; }
+    50% { transform: scale(1.03); opacity: 1; }
+  }
+  @keyframes pulseOuter {
+    0% { transform: scale(0.86); opacity: 0.35; }
+    60% { transform: scale(1.15); opacity: 0.1; }
+    100% { transform: scale(1.28); opacity: 0; }
+  }
+  .loading-copy {
+    font-size: 0.63rem;
+    color: var(--light-grey);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .results-header {
+    margin-bottom: 30px;
+  }
+  .results-eyebrow {
+    font-size: 0.52rem;
+    letter-spacing: 0.27em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    margin-bottom: 12px;
+  }
+  .results-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 4.4vw, 4rem);
+    font-weight: 300;
+    line-height: 1.05;
+  }
+  .results-title em { color: var(--champagne); font-style: italic; }
+  .results-summary {
+    color: var(--light-grey);
+    font-size: 0.72rem;
+    line-height: 1.95;
+    max-width: 900px;
+    margin-top: 20px;
+  }
+  .overview-cards {
+    margin-top: 26px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .overview-card {
+    border: 1px solid var(--border-light);
+    background: rgba(26,23,19,0.76);
+    padding: 22px 18px;
+  }
+  .overview-card h4 {
+    font-size: 0.56rem;
+    letter-spacing: 0.19em;
+    text-transform: uppercase;
+    color: var(--champagne-light);
+    margin-bottom: 10px;
+  }
+  .overview-card p {
+    font-size: 0.66rem;
+    color: var(--warm-grey);
+    line-height: 1.85;
+  }
+  .blueprint-conversion {
+    margin-top: 34px;
+    border: 1px solid rgba(201,169,110,0.3);
+    background: linear-gradient(145deg, rgba(201,169,110,0.12), rgba(24,21,17,0.88));
+    padding: clamp(20px, 3vw, 36px);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 26px;
+  }
+  .blueprint-conversion h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.7rem, 2.8vw, 2.5rem);
+    font-weight: 300;
+    margin-bottom: 10px;
+  }
+  .blueprint-conversion p {
+    font-size: 0.69rem;
+    color: var(--light-grey);
+    line-height: 1.85;
+    max-width: 720px;
+  }
+  .blueprint-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    border: 1px solid var(--champagne);
+    background: var(--champagne);
+    color: var(--charcoal);
+    text-decoration: none;
+    padding: 14px 22px;
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .assessment-shell.state-loading .cinematic-loader { display: grid; }
+  .assessment-shell.state-loading .results-panel { display: none; }
+  .assessment-shell.state-results .cinematic-loader { display: none; }
+  .assessment-shell.state-results .results-panel { display: block; }
+
   /* ─── RESPONSIVE ─────────────────────────────── */
   @media (max-width: 1024px) {
     nav { padding: 24px 40px; }
@@ -1043,6 +1361,11 @@
     .intel-header { grid-template-columns: 1fr; gap: 40px; }
     .intel-grid { grid-template-columns: 1fr 1fr; }
     .footer-top { grid-template-columns: 1fr 1fr; gap: 48px; }
+    .assessment-content { grid-template-columns: 1fr; }
+    .assessment-intro { border-right: 0; border-bottom: 1px solid var(--border-light); }
+    .assessment-shell { width: calc(100% - 36px); margin: 18px auto; height: calc(100vh - 36px); }
+    .overview-cards { grid-template-columns: 1fr 1fr; }
+    .blueprint-conversion { grid-template-columns: 1fr; }
   }
 
   @media (max-width: 768px) {
@@ -1073,6 +1396,14 @@
     .footer-bottom { flex-direction: column; align-items: flex-start; }
     .client-statement { padding: 40px 24px; }
     .philosophy-strip { padding: 20px 24px; }
+    .assessment-topbar { padding: 14px 16px; }
+    .assessment-title { letter-spacing: 0.16em; font-size: 0.5rem; }
+    .return-site { padding: 8px 10px; letter-spacing: 0.12em; font-size: 0.49rem; }
+    .assessment-intro { padding: 24px 18px; }
+    .assessment-footer { flex-direction: column; align-items: flex-start; padding: 14px 16px; }
+    .assessment-complete { width: 100%; justify-content: center; display: inline-flex; }
+    .overview-cards { grid-template-columns: 1fr; }
+    .assessment-results { padding: 28px 16px 28px; }
   }
 </style>
 </head>
@@ -1105,6 +1436,70 @@
   <a href="#clients" class="mobile-link">Clients</a>
   <a href="#intelligence" class="mobile-link">Intelligence</a>
   <a href="#inquiry" class="mobile-link">Private Inquiry</a>
+  <a href="#" class="mobile-link js-open-assessment">Strategic Assessment</a>
+</div>
+
+<!-- IMMERSIVE STRATEGIC ASSESSMENT OVERLAY -->
+<div class="assessment-overlay" id="assessmentOverlay" aria-hidden="true">
+  <div class="assessment-shell" id="assessmentShell">
+    <div class="assessment-topbar">
+      <div class="assessment-title">Santori Reserve Strategic Assessment</div>
+      <button type="button" class="return-site" id="returnToSiteBtn">Return to Site</button>
+    </div>
+    <div class="assessment-content">
+      <aside class="assessment-intro">
+        <h3>Private Strategic <em>Assessment</em></h3>
+        <p>
+          Complete this guided onboarding experience to generate your AI-assisted strategic overview. Responses are used exclusively for internal strategic direction and private consultation prep.
+        </p>
+        <p>
+          Upon submission, your Strategic Overview Dashboard will render immediately with recommended priorities, brand architecture direction, and suggested next actions.
+        </p>
+        <ul>
+          <li>Confidential & secure</li>
+          <li>Luxury expansion focused</li>
+          <li>AI-assisted strategic synthesis</li>
+        </ul>
+      </aside>
+      <div class="assessment-frame-wrap">
+        <iframe
+          id="assessmentFrame"
+          class="assessment-frame"
+          title="Santori Reserve Strategic Assessment"
+          src="https://form.fillout.com/t/8bHkFJasfAus?transparentBackground=1"
+          loading="lazy"
+          allow="clipboard-write"
+        ></iframe>
+      </div>
+    </div>
+    <div class="assessment-footer">
+      <p>After submitting your assessment, continue to generate your strategic overview.</p>
+      <button type="button" class="assessment-complete" id="completeAssessmentBtn">I Completed the Assessment</button>
+    </div>
+    <div class="assessment-results" id="assessmentResults">
+      <div class="cinematic-loader" id="cinematicLoader">
+        <div>
+          <div class="pulse-ring"></div>
+          <div class="loading-copy">Crafting your strategic overview...</div>
+        </div>
+      </div>
+      <div class="results-panel" id="resultsPanel">
+        <div class="results-header">
+          <div class="results-eyebrow">Strategic Intelligence Output</div>
+          <h3 class="results-title">Your Santori Reserve <em>Strategic Overview</em></h3>
+          <p class="results-summary" id="resultsSummary"></p>
+        </div>
+        <div class="overview-cards" id="overviewCards"></div>
+        <div class="blueprint-conversion">
+          <div>
+            <h4>Santori Reserve 60-Day Strategic Blueprint</h4>
+            <p>Move from insight to execution with a private 60-day expansion blueprint tailored to your brand trajectory, market targets, and visibility goals.</p>
+          </div>
+          <a href="#inquiry" class="blueprint-btn" id="blueprintBtn">Request the 60-Day Blueprint</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════ -->
@@ -1132,6 +1527,7 @@
       <a href="#inquiry" class="btn-primary">Request Private Access</a>
       <a href="#services" class="btn-secondary">Explore Services</a>
     </div>
+    <a href="#" class="assessment-launch js-open-assessment">Launch Strategic Assessment</a>
   </div>
 
   <div class="hero-bottom">
@@ -1674,6 +2070,16 @@
 <!-- SCRIPTS -->
 <!-- ═══════════════════════════════════════════════════ -->
 <script>
+  const STRATEGIC_API_ENDPOINT = '/api/strategic-overview';
+  const FALLBACK_OVERVIEW = {
+    summary: 'Your brand shows strong positioning potential in premium markets. Near-term gains are likely from tightening message architecture, sequencing expansion by market readiness, and codifying strategic visibility partnerships.',
+    cards: [
+      { title: 'Positioning Priority', body: 'Refine a singular luxury narrative with stronger proof points tied to heritage, scarcity, and market authority.' },
+      { title: 'Expansion Priority', body: 'Sequence market entry in two phases: first where cultural alignment is highest, then where media leverage compounds.' },
+      { title: 'Visibility Priority', body: 'Build an editorial-partnership engine that translates prestige signals into conversion-ready trust.' }
+    ]
+  };
+
   // ─── CUSTOM CURSOR ───────────────────────────────────
   const cursor = document.getElementById('cursor');
   const ring   = document.getElementById('cursorRing');
@@ -1694,17 +2100,19 @@
   }
   animRing();
 
-  document.querySelectorAll('a, button, .service-card, .pillar, .client-item, .intel-card').forEach(el => {
-    el.addEventListener('mouseenter', () => {
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest('a, button, .service-card, .pillar, .client-item, .intel-card, .overview-card')) {
       ring.style.width  = '60px';
       ring.style.height = '60px';
       ring.style.opacity = '0.5';
-    });
-    el.addEventListener('mouseleave', () => {
+    }
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest('a, button, .service-card, .pillar, .client-item, .intel-card, .overview-card')) {
       ring.style.width  = '36px';
       ring.style.height = '36px';
       ring.style.opacity = '1';
-    });
+    }
   });
 
   // ─── NAV SCROLL ──────────────────────────────────────
@@ -1746,6 +2154,117 @@
       }
     });
   });
+
+  // ─── STRATEGIC ASSESSMENT OVERLAY ───────────────────
+  const body = document.body;
+  const overlay = document.getElementById('assessmentOverlay');
+  const shell = document.getElementById('assessmentShell');
+  const resultsRoot = document.getElementById('assessmentResults');
+  const resultsSummary = document.getElementById('resultsSummary');
+  const cardsContainer = document.getElementById('overviewCards');
+  const returnBtn = document.getElementById('returnToSiteBtn');
+  const completeBtn = document.getElementById('completeAssessmentBtn');
+  const blueprintBtn = document.getElementById('blueprintBtn');
+  const frame = document.getElementById('assessmentFrame');
+  let latestAssessmentPayload = null;
+
+  function setBodyLock(locked) {
+    body.style.overflow = locked ? 'hidden' : '';
+  }
+
+  function openAssessmentOverlay() {
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+    shell.classList.remove('state-loading', 'state-results', 'fade-to-results');
+    setBodyLock(true);
+  }
+
+  function closeAssessmentOverlay() {
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    setBodyLock(false);
+  }
+
+  function renderOverview(payload) {
+    const safePayload = payload && Array.isArray(payload.cards) ? payload : FALLBACK_OVERVIEW;
+    resultsSummary.textContent = safePayload.summary || FALLBACK_OVERVIEW.summary;
+    cardsContainer.innerHTML = '';
+    safePayload.cards.slice(0, 6).forEach(card => {
+      const node = document.createElement('article');
+      node.className = 'overview-card';
+      const title = document.createElement('h4');
+      title.textContent = card.title || 'Strategic Lens';
+      const body = document.createElement('p');
+      body.textContent = card.body || '';
+      node.appendChild(title);
+      node.appendChild(body);
+      cardsContainer.appendChild(node);
+    });
+  }
+
+  async function fetchStrategicOverview(payload) {
+    try {
+      const res = await fetch(STRATEGIC_API_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload || {})
+      });
+      if (!res.ok) throw new Error('Unable to generate overview.');
+      const json = await res.json();
+      if (!json || !json.summary || !Array.isArray(json.cards)) throw new Error('Malformed response.');
+      return json;
+    } catch (error) {
+      return FALLBACK_OVERVIEW;
+    }
+  }
+
+  async function startStrategicLoading() {
+    shell.classList.add('fade-to-results');
+    await new Promise(resolve => setTimeout(resolve, 420));
+    shell.classList.add('state-loading');
+    resultsRoot.scrollTop = 0;
+    const overview = await fetchStrategicOverview({ assessment: latestAssessmentPayload });
+    renderOverview(overview);
+    await new Promise(resolve => setTimeout(resolve, 1300));
+    shell.classList.remove('state-loading');
+    shell.classList.add('state-results');
+    resultsRoot.scrollTop = 0;
+  }
+
+  document.querySelectorAll('.js-open-assessment').forEach(trigger => {
+    trigger.addEventListener('click', event => {
+      event.preventDefault();
+      mobileMenu.classList.remove('open');
+      openAssessmentOverlay();
+    });
+  });
+
+  returnBtn.addEventListener('click', closeAssessmentOverlay);
+  completeBtn.addEventListener('click', startStrategicLoading);
+  blueprintBtn.addEventListener('click', () => {
+    closeAssessmentOverlay();
+  });
+
+  window.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && overlay.classList.contains('is-open')) {
+      closeAssessmentOverlay();
+    }
+  });
+
+  window.addEventListener('message', event => {
+    const trustedOrigin = event.origin.includes('fillout.com');
+    if (!trustedOrigin || !event.data) return;
+    const messageType = event.data.event || event.data.type || '';
+    if (messageType.includes('submission') || messageType.includes('complete')) {
+      latestAssessmentPayload = event.data.response || event.data.payload || event.data;
+      startStrategicLoading();
+    }
+  });
+
+  // allow environment-level override for Fillout URL without code edits
+  if (window.SANTORI_FILLOUT_URL && typeof window.SANTORI_FILLOUT_URL === 'string') {
+    frame.src = window.SANTORI_FILLOUT_URL;
+  }
 
 </script>
 </body>
