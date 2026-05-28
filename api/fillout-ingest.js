@@ -1,4 +1,10 @@
-import { cacheRawSubmission, countMeaningfulAnswers } from './lib/overview-cache.js';
+import { waitUntil } from '@vercel/functions';
+import {
+  cacheOverview,
+  cacheRawSubmission,
+  countMeaningfulAnswers,
+  tryGenerateOverview
+} from './lib/overview-cache.js';
 
 function parseBody(body) {
   if (!body) return {};
@@ -42,6 +48,16 @@ function normalizeFilloutWebhook(rawPayload) {
   };
 }
 
+async function generateAndCache(cacheKey, payload) {
+  const overview = await tryGenerateOverview(payload);
+  if (overview) {
+    cacheOverview(cacheKey, overview);
+    console.log('[Santori Fillout Ingest] Overview generated', { cacheKey });
+  } else {
+    console.log('[Santori Fillout Ingest] Overview generation deferred', { cacheKey });
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -71,9 +87,24 @@ export default async function handler(req, res) {
 
     cacheRawSubmission(cacheKey, payload);
 
+    const overview = await tryGenerateOverview(payload);
+    if (overview) {
+      cacheOverview(cacheKey, overview);
+      return res.status(200).json({
+        ok: true,
+        received: true,
+        generated: true,
+        submissionId: cacheKey,
+        message: 'Submission received and strategic overview generated.'
+      });
+    }
+
+    waitUntil(generateAndCache(cacheKey, payload));
+
     return res.status(200).json({
       ok: true,
       received: true,
+      generated: false,
       submissionId: cacheKey,
       message: 'Submission received and queued for strategic overview generation.'
     });

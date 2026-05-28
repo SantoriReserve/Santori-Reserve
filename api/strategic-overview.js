@@ -1,13 +1,11 @@
 import {
+  LATEST_CACHE_KEY,
   cacheOverview,
   getCachedOverview,
-  getRawSubmission,
   hasRenderableOverview,
-  tryGenerateOverview,
-  waitForCachedOverview
+  resolveFilloutPayload,
+  tryGenerateOverview
 } from './lib/overview-cache.js';
-
-const LATEST_CACHE_KEY = '__latest_submission__';
 
 function log(label, value) {
   console.log(`[Santori Assessment API] ${label}:`, value);
@@ -31,6 +29,11 @@ function extractSubmissionId(raw) {
   );
 }
 
+function missingConfigMessage() {
+  if (process.env.FILLOUT_API_KEY || process.env.OPENAI_API_KEY) return null;
+  return 'Server configuration required: add FILLOUT_API_KEY (recommended) or OPENAI_API_KEY in Vercel project settings, then redeploy.';
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -42,34 +45,49 @@ export default async function handler(req, res) {
     let submissionId = extractSubmissionId(rawAssessment);
     if (!submissionId && rawAssessment.submitted) submissionId = LATEST_CACHE_KEY;
 
-    log('Incoming request', { submissionId, rawAssessment });
+    log('Incoming request', { submissionId, keys: Object.keys(rawAssessment) });
 
-    if (submissionId) {
-      const immediate = getCachedOverview(submissionId);
+    const cacheKeys = [submissionId, LATEST_CACHE_KEY].filter(Boolean);
+    for (const key of cacheKeys) {
+      const immediate = getCachedOverview(key);
       if (immediate && hasRenderableOverview(immediate)) {
         return res.status(200).json(immediate);
       }
-
-      const cached = await waitForCachedOverview(submissionId, 18, 2000);
-      if (cached && hasRenderableOverview(cached)) {
-        return res.status(200).json(cached);
-      }
     }
 
-    const rawPayload = getRawSubmission(submissionId || LATEST_CACHE_KEY);
-    if (rawPayload) {
-      const generated = await tryGenerateOverview(rawPayload);
-      if (generated) {
-        const cacheKey = submissionId || LATEST_CACHE_KEY;
-        cacheOverview(cacheKey, generated);
+    const filloutPayload = await resolveFilloutPayload(rawAssessment);
+    if (filloutPayload) {
+      const resolvedId =
+        submissionId ||
+        filloutPayload.submission?.submissionId ||
+        filloutPayload.submissionId ||
+        LATEST_CACHE_KEY;
+
+      const generated = await tryGenerateOverview(filloutPayload);
+      if (generated && hasRenderableOverview(generated)) {
+        cacheOverview(resolvedId, generated);
+        cacheOverview(LATEST_CACHE_KEY, generated);
         return res.status(200).json(generated);
       }
+
+      log('Generation returned insufficient overview', { resolvedId });
+    } else {
+      log('No Fillout payload resolved yet', { submissionId });
+    }
+
+    const configMessage = missingConfigMessage();
+    if (configMessage && rawAssessment.submitted) {
+      return res.status(503).json({
+        error: 'Configuration required',
+        message: configMessage,
+        status: 'config_required'
+      });
     }
 
     return res.status(202).json({
       status: 'pending',
       message: 'Strategic overview is still being generated from your submission.',
-      submissionId: submissionId || null
+      submissionId: submissionId && submissionId !== LATEST_CACHE_KEY ? submissionId : null
     });
   } catch (error) {
     log('Handler error', error.message);

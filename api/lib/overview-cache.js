@@ -2,8 +2,11 @@ const MAKE_WEBHOOK_URL =
   process.env.MAKE_WEBHOOK_URL ||
   'https://hook.us2.make.com/278a8h6hk8mfurlmgin8k50to0mwe4h5';
 
+const FILLOUT_API_BASE = process.env.FILLOUT_API_BASE || 'https://api.fillout.com/v1/api';
+const FILLOUT_FORM_ID = process.env.FILLOUT_FORM_ID || 'rQVdTg5Eo6us';
+
 const CACHE_TTL_MS = 15 * 60 * 1000;
-const LATEST_CACHE_KEY = '__latest_submission__';
+export const LATEST_CACHE_KEY = '__latest_submission__';
 
 function getCacheStore() {
   if (!globalThis.__santoriOverviewCache) {
@@ -254,6 +257,12 @@ async function generateViaOpenAI(formattedAnswers) {
 }
 
 export async function tryGenerateOverview(rawPayload) {
+  const formatted = formatQuestionsFromPayload(rawPayload);
+  if (formatted && process.env.OPENAI_API_KEY) {
+    const openAiOverview = await generateViaOpenAI(formatted);
+    if (openAiOverview) return openAiOverview;
+  }
+
   const variants = buildMakePayloadVariants(rawPayload);
   for (const variant of variants) {
     try {
@@ -264,10 +273,125 @@ export async function tryGenerateOverview(rawPayload) {
     }
   }
 
-  const formatted = formatQuestionsFromPayload(rawPayload);
-  if (formatted) {
-    const openAiOverview = await generateViaOpenAI(formatted);
-    if (openAiOverview) return openAiOverview;
+  if (formatted && process.env.OPENAI_API_KEY) {
+    return generateViaOpenAI(formatted);
+  }
+
+  return null;
+}
+
+function wrapFilloutRecord(record) {
+  if (!record) return null;
+
+  const questions = record.submission?.questions || record.questions || [];
+  if (!Array.isArray(questions) || questions.length === 0) {
+    if (record.submission?.questions || record.questions) return record;
+    return null;
+  }
+
+  if (record.submission?.questions) return record;
+
+  return {
+    formId: record.formId || FILLOUT_FORM_ID,
+    submission: {
+      submissionId:
+        record.submissionId ||
+        record.submission_id ||
+        record.id ||
+        record.submission?.submissionId,
+      submissionTime:
+        record.submissionTime ||
+        record.createdAt ||
+        record.lastUpdatedAt ||
+        record.submission?.submissionTime ||
+        new Date().toISOString(),
+      questions
+    }
+  };
+}
+
+export async function fetchSubmissionFromFilloutApi(submissionId) {
+  const apiKey = process.env.FILLOUT_API_KEY;
+  if (!apiKey || !submissionId) return null;
+
+  const url = `${FILLOUT_API_BASE}/forms/${FILLOUT_FORM_ID}/submissions/${submissionId}`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+  const text = await res.text();
+  console.log('[Santori Fillout API] fetch by id', { submissionId, status: res.status });
+  if (!res.ok) return null;
+  try {
+    return wrapFilloutRecord(JSON.parse(text));
+  } catch (_error) {
+    return null;
+  }
+}
+
+export async function fetchLatestSubmissionFromFilloutApi(maxAgeMs = 5 * 60 * 1000) {
+  const apiKey = process.env.FILLOUT_API_KEY;
+  if (!apiKey) return null;
+
+  const url = `${FILLOUT_API_BASE}/forms/${FILLOUT_FORM_ID}/submissions?limit=5&sort=desc`;
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+  const text = await res.text();
+  console.log('[Santori Fillout API] fetch latest', { status: res.status, text: text.slice(0, 400) });
+  if (!res.ok) return null;
+
+  try {
+    const data = JSON.parse(text);
+    const submissions = data.responses || data.submissions || data.results || data;
+    if (!Array.isArray(submissions)) return null;
+
+    const now = Date.now();
+    for (const record of submissions) {
+      const wrapped = wrapFilloutRecord(record);
+      const questions = wrapped?.submission?.questions || wrapped?.questions || [];
+      if (countMeaningfulAnswers(questions) < 3) continue;
+
+      const timeStr =
+        record.submissionTime ||
+        record.createdAt ||
+        record.submission?.submissionTime ||
+        wrapped?.submission?.submissionTime;
+      if (timeStr) {
+        const age = now - new Date(timeStr).getTime();
+        if (Number.isFinite(age) && age > maxAgeMs) continue;
+      }
+      return wrapped;
+    }
+    return null;
+  } catch (_error) {
+    return null;
+  }
+}
+
+export async function resolveFilloutPayload(rawAssessment) {
+  if (!rawAssessment || typeof rawAssessment !== 'object') return null;
+
+  if (rawAssessment.filloutPayload) return rawAssessment.filloutPayload;
+  if (rawAssessment.questions?.length >= 3) {
+    return wrapFilloutRecord(rawAssessment);
+  }
+
+  const submissionId =
+    rawAssessment.submissionId ||
+    rawAssessment.submission_id ||
+    rawAssessment.submissionUuid ||
+    rawAssessment.submission_uuid ||
+    rawAssessment.id ||
+    '';
+
+  const cachedRaw = getRawSubmission(submissionId || LATEST_CACHE_KEY);
+  if (cachedRaw && countMeaningfulAnswers(cachedRaw.submission?.questions || cachedRaw.questions) >= 3) {
+    return cachedRaw;
+  }
+
+  if (submissionId) {
+    const byId = await fetchSubmissionFromFilloutApi(submissionId);
+    if (byId) return byId;
+  }
+
+  if (rawAssessment.submitted || submissionId) {
+    return fetchLatestSubmissionFromFilloutApi();
   }
 
   return null;

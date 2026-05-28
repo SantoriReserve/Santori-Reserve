@@ -1496,15 +1496,14 @@
           <li>AI-assisted strategic synthesis</li>
         </ul>
       </aside>
-      <div class="assessment-frame-wrap">
-        <iframe
-          id="assessmentFrame"
-          class="assessment-frame"
-          title="Santori Reserve Strategic Assessment"
-          src="https://forms.fillout.com/t/rQVdTg5Eo6us"
-          loading="lazy"
-          allow="clipboard-write"
-        ></iframe>
+      <div class="assessment-frame-wrap" id="filloutEmbedHost">
+        <div
+          id="filloutEmbed"
+          data-fillout-id="rQVdTg5Eo6us"
+          data-fillout-embed-type="standard"
+          data-fillout-dynamic-resize
+          style="width:100%;height:100%;"
+        ></div>
       </div>
     </div>
     <div class="assessment-footer">
@@ -2224,7 +2223,7 @@
   const completeBtn = document.getElementById('completeAssessmentBtn');
   const statusText = document.getElementById('assessmentStatusText');
   const blueprintBtn = document.getElementById('blueprintBtn');
-  const frame = document.getElementById('assessmentFrame');
+  const filloutEmbed = document.getElementById('filloutEmbed');
   const loadingScreen = document.getElementById('loadingScreen');
   const strategicOverview = document.getElementById('strategicOverview');
   const loadingCopy = document.querySelector('.loading-copy');
@@ -2319,7 +2318,7 @@
   async function fetchStrategicOverview(assessment) {
     logAssessment('Sending assessment payload', assessment);
 
-    const maxAttempts = 16;
+    const maxAttempts = 24;
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       const res = await fetch(STRATEGIC_API_ENDPOINT, {
         method: 'POST',
@@ -2336,6 +2335,13 @@
       } catch (error) {
         logAssessment('JSON parse failed', { text, error: error.message });
         throw new Error('Invalid JSON from strategic overview API');
+      }
+
+      if (json.status === 'config_required' || res.status === 503) {
+        throw new Error(
+          json.message ||
+            'Assessment server is missing required API keys. Add FILLOUT_API_KEY in Vercel settings and redeploy.'
+        );
       }
 
       if (res.status === 202 || json.status === 'pending') {
@@ -2359,7 +2365,7 @@
       return normalizeOverviewResponse(json);
     }
 
-    throw new Error('Timed out waiting for strategic overview. Check Fillout webhook configuration.');
+    throw new Error('Timed out waiting for strategic overview. Confirm Fillout webhook is connected and API keys are set in Vercel.');
   }
 
   async function startStrategicLoading() {
@@ -2442,9 +2448,21 @@
 
   function extractFilloutSubmissionPayload(data) {
     const parsed = parseMessageData(data);
-    if (!parsed || typeof parsed !== 'object') return null;
+    if (!parsed) return null;
 
     logAssessment('Fillout postMessage received', parsed);
+
+    if (typeof parsed === 'string') {
+      const uuidMatch = parsed.match(
+        /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i
+      );
+      if (uuidMatch) {
+        return { submissionId: uuidMatch[0], submitted: true };
+      }
+      return null;
+    }
+
+    if (typeof parsed !== 'object') return null;
 
     const joinedSignals = [
       parsed.event,
@@ -2453,15 +2471,19 @@
       parsed.action,
       parsed.message,
       parsed.status,
-      parsed.eventName
+      parsed.eventName,
+      parsed.kind
     ]
       .map(value => String(value || '').toLowerCase())
       .join(' ');
 
+    const serialized = JSON.stringify(parsed).toLowerCase();
     const looksLikeSubmission =
-      /(submit|submission|complete|completed|finish|finished|success|form_submitted|thank)/.test(joinedSignals) ||
+      /(submit|submission|complete|completed|finish|finished|success|form_submitted|thank|submitted)/.test(
+        joinedSignals
+      ) ||
       (String(parsed.source || '').toLowerCase() === 'fillout' &&
-        /(submit|submission|complete|finished)/.test(JSON.stringify(parsed).toLowerCase()));
+        /(submit|submission|complete|finished|submitted)/.test(serialized));
 
     if (!looksLikeSubmission) return null;
 
@@ -2498,6 +2520,12 @@
     if (submissionId) payload.submissionId = String(submissionId);
     payload.submitted = true;
 
+    if (Array.isArray(submissionBlock.questions) && submissionBlock.questions.length >= 3) {
+      payload.questions = submissionBlock.questions;
+    } else if (Array.isArray(parsed.questions) && parsed.questions.length >= 3) {
+      payload.questions = parsed.questions;
+    }
+
     logAssessment('Extracted Fillout submission payload', payload);
     return payload;
   }
@@ -2505,11 +2533,11 @@
   window.addEventListener('message', event => {
     let trustedOrigin = false;
     try {
-      trustedOrigin = /(^|\.)fillout\.com$/.test((new URL(event.origin)).hostname);
+      trustedOrigin = /(^|\.)fillout\.com$/.test(new URL(event.origin).hostname);
     } catch (_error) {
       trustedOrigin = false;
     }
-    if (!trustedOrigin || !event.data) return;
+    if (!trustedOrigin || event.data == null) return;
 
     const submissionPayload = extractFilloutSubmissionPayload(event.data);
     if (!submissionPayload || isGeneratingOverview || hasValidatedSubmission) return;
@@ -2520,9 +2548,11 @@
     startStrategicLoading();
   });
 
-  // allow environment-level override for Fillout URL without code edits
-  if (window.SANTORI_FILLOUT_URL && typeof window.SANTORI_FILLOUT_URL === 'string') frame.src = window.SANTORI_FILLOUT_URL;
+  if (window.SANTORI_FILLOUT_ID && filloutEmbed) {
+    filloutEmbed.setAttribute('data-fillout-id', window.SANTORI_FILLOUT_ID);
+  }
 
 </script>
+<script src="https://server.fillout.com/embed/v1/"></script>
 </body>
 </html>
