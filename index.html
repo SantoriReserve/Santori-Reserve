@@ -2268,41 +2268,31 @@
 
   async function startStrategicOverviewGeneration(payload, requestId) {
     const res = await fetch(STRATEGIC_API_ENDPOINT, {
+  
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ assessment: payload || {}, requestId })
-    });
-    if (json.overview) {
-  document.getElementById("overviewText").innerText = json.overview || "";
-  document.getElementById("positioningPriority").innerText = json.positioning_priority || "";
-  document.getElementById("expansionPriority").innerText = json.expansion_priority || "";
-  document.getElementById("visibilityPriority").innerText = json.visibility_priority || "";
-  document.getElementById("marketPotential").innerText = json.market_potential || "";
-  document.getElementById("revenuePotential").innerText = json.revenue_potential || "";
-  document.getElementById("blueprintText").innerText = json.blueprint || "";
+    }); 
+    const text = await res.text();
+const json = JSON.parse(text);
 
-  document.getElementById("loadingScreen").style.display = "none";
-  document.getElementById("strategicOverview").style.display = "block";
+   
+document.getElementById("overviewText").innerText = json.overview || "";
+document.getElementById("positioningPriority").innerText = json.positioning_priority || "";
+document.getElementById("expansionPriority").innerText = json.expansion_priority || "";
+document.getElementById("visibilityPriority").innerText = json.visibility_priority || "";
+document.getElementById("marketPotential").innerText = json.market_potential || "";
+document.getElementById("revenuePotential").innerText = json.revenue_potential || "";
+document.getElementById("blueprintText").innerText = json.blueprint || "";
 
-  return {
-    status: "complete",
-    payload: json
-  };
+document.getElementById("loadingScreen").style.display = "none";
+document.getElementById("strategicOverview").style.display = "block";
+
+return {
+  status: "complete",
+  payload: json
+};
 }
-    const json = await res.json().catch(() => ({}));
-    if (res.status === 202 || json.status === 'pending') {
-      return {
-        status: 'pending',
-        requestId: json.requestId || requestId,
-        jobId: json.jobId || null
-      };
-    }
-    if (!res.ok) throw new Error('Unable to generate overview.');
-    if (!json || typeof json.summary !== 'string' || !Array.isArray(json.cards)) {
-      throw new Error('Malformed response.');
-    }
-    return { status: 'ready', data: json };
-  }
 
   async function fetchStrategicOverviewStatus(requestId, jobId) {
     const statusUrl = new URL(STRATEGIC_API_ENDPOINT, window.location.origin);
