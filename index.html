@@ -2299,7 +2299,12 @@ return {
     statusUrl.searchParams.set('requestId', requestId);
     if (jobId) statusUrl.searchParams.set('jobId', jobId);
     const res = await fetch(statusUrl.toString(), { method: 'GET' });
-    const json = await res.json().catch(() => ({}));
+    const text = await res.text();
+
+console.log(text);
+
+const json = JSON.parse(text);
+
     if (res.status === 202 || json.status === 'pending') {
       return {
         status: 'pending',
