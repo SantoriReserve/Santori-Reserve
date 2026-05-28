@@ -2268,16 +2268,57 @@
   }
 
   function renderStrategicOverview(json) {
-    document.getElementById('overviewText').textContent = json.overview || '';
-    document.getElementById('positioningPriority').textContent = json.positioning_priority || '';
-    document.getElementById('expansionPriority').textContent = json.expansion_priority || '';
-    document.getElementById('visibilityPriority').textContent = json.visibility_priority || '';
-    document.getElementById('marketPotential').textContent = json.market_potential || '';
-    document.getElementById('revenuePotential').textContent = json.revenue_potential || '';
-    document.getElementById('blueprintText').textContent = json.blueprint || '';
+    const overview = normalizeOverviewResponse(json);
+    logAssessment('Rendering overview fields', overview);
+
+    document.getElementById('overviewText').textContent = overview.overview;
+    document.getElementById('positioningPriority').textContent = overview.positioning_priority;
+    document.getElementById('expansionPriority').textContent = overview.expansion_priority;
+    document.getElementById('visibilityPriority').textContent = overview.visibility_priority;
+    document.getElementById('marketPotential').textContent = overview.market_potential;
+    document.getElementById('revenuePotential').textContent = overview.revenue_potential;
+    document.getElementById('blueprintText').textContent = overview.blueprint;
+  }
+
+  function logAssessment(label, value) {
+    console.log('[Santori Assessment]', label, value);
+  }
+
+  function normalizeOverviewResponse(data) {
+    const source = data && typeof data === 'object' ? data : {};
+    return {
+      overview: String(source.overview || source.summary || '').trim(),
+      positioning_priority: String(source.positioning_priority || source.positioningPriority || '').trim(),
+      expansion_priority: String(source.expansion_priority || source.expansionPriority || '').trim(),
+      visibility_priority: String(source.visibility_priority || source.visibilityPriority || '').trim(),
+      market_potential: String(source.market_potential || source.marketPotential || '').trim(),
+      revenue_potential: String(source.revenue_potential || source.revenuePotential || '').trim(),
+      blueprint: String(source.blueprint || source.strategic_blueprint || '').trim()
+    };
+  }
+
+  function isInsufficientOverview(json) {
+    const combined = Object.values(json).join(' ').toLowerCase();
+    return (
+      combined.includes('insufficient data') ||
+      combined.includes('please provide') ||
+      combined.includes('please supply') ||
+      combined.includes('awaiting core brand') ||
+      combined.includes('awaiting full business') ||
+      combined.includes('tbd – awaiting') ||
+      combined.includes('tbd - awaiting')
+    );
+  }
+
+  function hasRenderableOverview(json) {
+    const normalized = normalizeOverviewResponse(json);
+    const filled = Object.values(normalized).filter((value) => value.length > 20);
+    return filled.length >= 3 && !isInsufficientOverview(normalized);
   }
 
   async function fetchStrategicOverview(assessment) {
+    logAssessment('Sending assessment payload', assessment);
+
     const res = await fetch(STRATEGIC_API_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2285,13 +2326,29 @@
     });
 
     const text = await res.text();
-    if (!res.ok) throw new Error(text || 'Overview request failed');
+    logAssessment('Raw API response', text);
 
+    let json;
     try {
-      return JSON.parse(text);
-    } catch (_error) {
+      json = JSON.parse(text);
+    } catch (error) {
+      logAssessment('JSON parse failed', { text, error: error.message });
       throw new Error('Invalid JSON from strategic overview API');
     }
+
+    if (!res.ok) {
+      logAssessment('API error response', json);
+      throw new Error(json.message || json.error || 'Overview request failed');
+    }
+
+    logAssessment('Parsed API JSON', json);
+
+    if (!hasRenderableOverview(json)) {
+      logAssessment('Missing or insufficient overview fields', normalizeOverviewResponse(json));
+      throw new Error('AI response did not contain enough strategic content.');
+    }
+
+    return normalizeOverviewResponse(json);
   }
 
   async function startStrategicLoading() {
@@ -2375,6 +2432,8 @@
     const parsed = parseMessageData(data);
     if (!parsed || typeof parsed !== 'object') return null;
 
+    logAssessment('Fillout postMessage received', parsed);
+
     const joinedSignals = [
       parsed.event,
       parsed.type,
@@ -2386,10 +2445,11 @@
     ]
       .map(value => String(value || '').toLowerCase())
       .join(' ');
+
     const looksLikeSubmission = /(submit|submission|complete|completed|finish|finished|success|form_submitted)/.test(joinedSignals);
     if (!looksLikeSubmission) return null;
 
-    const payload =
+    const nested =
       parsed.response ||
       parsed.payload ||
       parsed.data ||
@@ -2397,7 +2457,24 @@
       parsed.answers ||
       parsed.formData ||
       {};
-    if (!payload || typeof payload !== 'object') return null;
+
+    const submissionId =
+      parsed.submissionId ||
+      parsed.submissionUuid ||
+      parsed.submission_id ||
+      parsed.submission_uuid ||
+      nested.submissionId ||
+      nested.submissionUuid ||
+      nested.submission_id ||
+      nested.submission_uuid ||
+      parsed.id ||
+      null;
+
+    const payload = typeof nested === 'object' && nested !== null ? { ...nested } : {};
+    if (submissionId) payload.submissionId = String(submissionId);
+    if (!submissionId && !Object.keys(payload).length) return null;
+
+    logAssessment('Extracted Fillout submission payload', payload);
     return payload;
   }
 
@@ -2409,8 +2486,10 @@
       trustedOrigin = false;
     }
     if (!trustedOrigin || !event.data) return;
+
     const submissionPayload = extractFilloutSubmissionPayload(event.data);
     if (!submissionPayload || isGeneratingOverview || hasValidatedSubmission) return;
+
     latestAssessmentPayload = submissionPayload;
     hasValidatedSubmission = true;
     statusText.textContent = 'Submission received. Generating Strategic Overview...';
