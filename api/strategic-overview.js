@@ -113,26 +113,48 @@ async function enrichAssessment(rawAssessment) {
   const submissionId = extractSubmissionId(rawAssessment) || extractSubmissionId(assessment);
   if (submissionId) assessment.submission_id = String(submissionId);
 
+  let filloutSubmission = null;
+
   if (countAssessmentFields(assessment) >= 3) {
     log('Assessment already populated', assessment);
-    return assessment;
+    return { assessment, filloutSubmission };
   }
 
   if (!submissionId) {
     log('Assessment sparse and no submissionId', assessment);
-    return assessment;
+    return { assessment, filloutSubmission };
   }
 
-  const submission = await fetchFilloutSubmission(submissionId);
-  if (!submission) return assessment;
+  filloutSubmission = await fetchFilloutSubmission(submissionId);
+  if (!filloutSubmission) return { assessment, filloutSubmission };
 
-  const fromQuestions = flattenFilloutQuestions(submission.questions);
+  const fromQuestions = flattenFilloutQuestions(filloutSubmission.questions);
   const fromSubmission = {};
-  flattenObject(submission, fromSubmission);
+  flattenObject(filloutSubmission, fromSubmission);
 
   const enriched = { ...fromSubmission, ...fromQuestions, ...assessment, submission_id: String(submissionId) };
   log('Enriched assessment', enriched);
-  return enriched;
+  return { assessment: enriched, filloutSubmission };
+}
+
+function buildMakePayload(assessment, filloutSubmission) {
+  const payload = {
+    source: 'santori-reserve-web',
+    timestamp: new Date().toISOString()
+  };
+
+  if (filloutSubmission?.questions?.length) {
+    payload.questions = filloutSubmission.questions;
+    filloutSubmission.questions.forEach((question) => {
+      if (question.name != null && question.value != null) {
+        payload[question.name] = question.value;
+      }
+    });
+  }
+
+  Object.assign(payload, assessment);
+  payload.assessment = assessment;
+  return payload;
 }
 
 function extractJsonFromText(text) {
@@ -234,17 +256,14 @@ function hasRenderableOverview(json) {
   return filled.length >= 3 && !isInsufficientOverview(json);
 }
 
-async function callMakeWebhook(assessment) {
-  log('POST Make webhook payload', assessment);
+async function callMakeWebhook(assessment, filloutSubmission) {
+  const makePayload = buildMakePayload(assessment, filloutSubmission);
+  log('POST Make webhook payload', makePayload);
 
   const makeRes = await fetch(MAKE_WEBHOOK_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      source: 'santori-reserve-web',
-      timestamp: new Date().toISOString(),
-      assessment
-    })
+    body: JSON.stringify(makePayload)
   });
 
   const text = await makeRes.text();
@@ -312,16 +331,16 @@ export default async function handler(req, res) {
     const rawAssessment = req.body?.assessment ?? req.body ?? {};
     log('Incoming request body', rawAssessment);
 
-    const assessment = await enrichAssessment(rawAssessment);
+    const { assessment, filloutSubmission } = await enrichAssessment(rawAssessment);
     if (countAssessmentFields(assessment) < 2) {
       log('Missing assessment fields after enrichment', assessment);
       return res.status(422).json({
         error: 'Assessment data missing',
-        message: 'Unable to retrieve Fillout submission answers. Check FILLOUT_API_KEY and submissionId.'
+        message: 'Unable to retrieve Fillout submission answers. Add FILLOUT_API_KEY in Vercel and ensure submissionId is sent.'
       });
     }
 
-    let overview = await callMakeWebhook(assessment);
+    let overview = await callMakeWebhook(assessment, filloutSubmission);
     if (!hasRenderableOverview(overview)) {
       log('Make returned insufficient overview, attempting OpenAI fallback', overview);
       const openAiOverview = await generateViaOpenAI(assessment);
