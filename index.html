@@ -2303,7 +2303,17 @@ return {
 
 console.log(text);
 
-const json = JSON.parse(text);
+let json;
+
+try {
+  json = JSON.parse(text);
+} catch (e) {
+  console.error("INVALID JSON:", text);
+
+  alert(text);
+
+  return;
+}
 
     if (res.status === 202 || json.status === 'pending') {
       return {
@@ -2344,17 +2354,17 @@ const json = JSON.parse(text);
     if (startResponse.jobId) latestOverviewJobId = startResponse.jobId;
 
     let attempt = 0;
-    while (attempt < OVERVIEW_POLL_ATTEMPTS * 2) {
-      const result = await fetchStrategicOverviewStatus(latestOverviewRequestId, latestOverviewJobId);
-      if (result.status === 'ready') return result.data;
-      latestOverviewRequestId = result.requestId || latestOverviewRequestId;
-      latestOverviewJobId = result.jobId || latestOverviewJobId;
-      attempt += 1;
-      const dots = '.'.repeat((attempt % 3) + 1);
-      loadingCopy.textContent = `Generating Strategic Overview${dots}`;
-      await new Promise(resolve => setTimeout(resolve, OVERVIEW_POLL_INTERVAL_MS));
-    }
-    throw new Error('Timed out waiting for generated overview.');
+    const overview = await startStrategicOverviewGeneration(payload);
+
+document.getElementById("overviewText").innerText = overview.overview || "";
+document.getElementById("positioningPriority").innerText = overview.positioning_priority || "";
+document.getElementById("expansionPriority").innerText = overview.expansion_priority || "";
+document.getElementById("visibilityPriority").innerText = overview.visibility_priority || "";
+document.getElementById("marketPotential").innerText = overview.market_potential || "";
+document.getElementById("revenuePotential").innerText = overview.revenue_potential || "";
+document.getElementById("blueprintText").innerText = overview.blueprint || "";
+
+setApplicationState('state-results');
   }
 
   async function startStrategicLoading() {
