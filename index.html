@@ -1512,23 +1512,44 @@
       <button type="button" class="assessment-complete is-hidden" id="completeAssessmentBtn" disabled aria-hidden="true">Awaiting Fillout Submission</button>
     </div>
     <div class="assessment-results" id="assessmentResults">
-      <div class="cinematic-loader" id="cinematicLoader">
+      <div class="cinematic-loader" id="loadingScreen">
         <div>
           <div class="pulse-ring"></div>
           <div class="loading-copy">Crafting your strategic overview...</div>
         </div>
       </div>
-      <div class="results-panel" id="resultsPanel">
+      <div class="results-panel" id="strategicOverview">
         <div class="results-header">
           <div class="results-eyebrow">Strategic Intelligence Output</div>
           <h3 class="results-title">Your Santori Reserve <em>Strategic Overview</em></h3>
-          <p class="results-summary" id="resultsSummary"></p>
+          <p class="results-summary" id="overviewText"></p>
         </div>
-        <div class="overview-cards" id="overviewCards"></div>
+        <div class="overview-cards">
+          <article class="overview-card">
+            <h4>Positioning Priority</h4>
+            <p id="positioningPriority"></p>
+          </article>
+          <article class="overview-card">
+            <h4>Expansion Priority</h4>
+            <p id="expansionPriority"></p>
+          </article>
+          <article class="overview-card">
+            <h4>Visibility Priority</h4>
+            <p id="visibilityPriority"></p>
+          </article>
+          <article class="overview-card">
+            <h4>Market Potential</h4>
+            <p id="marketPotential"></p>
+          </article>
+          <article class="overview-card">
+            <h4>Revenue Potential</h4>
+            <p id="revenuePotential"></p>
+          </article>
+        </div>
         <div class="blueprint-conversion">
           <div>
             <h4>Santori Reserve 60-Day Strategic Blueprint</h4>
-            <p>Move from insight to execution with a private 60-day expansion blueprint tailored to your brand trajectory, market targets, and visibility goals.</p>
+            <p id="blueprintText"></p>
           </div>
           <a href="#inquiry" class="blueprint-btn" id="blueprintBtn">Request the 60-Day Blueprint</a>
         </div>
@@ -2118,8 +2139,6 @@
 <!-- ═══════════════════════════════════════════════════ -->
 <script>
   const STRATEGIC_API_ENDPOINT = '/api/strategic-overview';
-  const OVERVIEW_POLL_ATTEMPTS = 12;
-  const OVERVIEW_POLL_INTERVAL_MS = 1500;
 
   // ─── CUSTOM CURSOR ───────────────────────────────────
   const cursor = document.getElementById('cursor');
@@ -2201,18 +2220,15 @@
   const overlay = document.getElementById('assessmentOverlay');
   const shell = document.getElementById('assessmentShell');
   const resultsRoot = document.getElementById('assessmentResults');
-  const resultsSummary = document.getElementById('resultsSummary');
-  const cardsContainer = document.getElementById('overviewCards');
   const returnBtn = document.getElementById('returnToSiteBtn');
   const completeBtn = document.getElementById('completeAssessmentBtn');
   const statusText = document.getElementById('assessmentStatusText');
   const blueprintBtn = document.getElementById('blueprintBtn');
   const frame = document.getElementById('assessmentFrame');
+  const loadingScreen = document.getElementById('loadingScreen');
+  const strategicOverview = document.getElementById('strategicOverview');
   const loadingCopy = document.querySelector('.loading-copy');
   let latestAssessmentPayload = null;
-  let latestGeneratedOverview = null;
-  let latestOverviewRequestId = null;
-  let latestOverviewJobId = null;
   let isGeneratingOverview = false;
   let hasValidatedSubmission = false;
 
@@ -2237,10 +2253,11 @@
     completeBtn.disabled = true;
     completeBtn.classList.add('is-hidden');
     latestAssessmentPayload = null;
-    latestOverviewRequestId = null;
-    latestOverviewJobId = null;
     hasValidatedSubmission = false;
+    isGeneratingOverview = false;
     loadingCopy.textContent = 'Crafting your strategic overview...';
+    loadingScreen.style.display = '';
+    strategicOverview.style.display = 'none';
     setBodyLock(true);
   }
 
@@ -2250,147 +2267,72 @@
     setBodyLock(false);
   }
 
-  function renderOverview(payload) {
-    resultsSummary.textContent = payload.summary || '';
-    cardsContainer.innerHTML = '';
-    payload.cards.slice(0, 6).forEach(card => {
-      const node = document.createElement('article');
-      node.className = 'overview-card';
-      const title = document.createElement('h4');
-      title.textContent = card.title || 'Strategic Lens';
-      const body = document.createElement('p');
-      body.textContent = card.body || '';
-      node.appendChild(title);
-      node.appendChild(body);
-      cardsContainer.appendChild(node);
-    });
+  function renderStrategicOverview(json) {
+    document.getElementById('overviewText').textContent = json.overview || '';
+    document.getElementById('positioningPriority').textContent = json.positioning_priority || '';
+    document.getElementById('expansionPriority').textContent = json.expansion_priority || '';
+    document.getElementById('visibilityPriority').textContent = json.visibility_priority || '';
+    document.getElementById('marketPotential').textContent = json.market_potential || '';
+    document.getElementById('revenuePotential').textContent = json.revenue_potential || '';
+    document.getElementById('blueprintText').textContent = json.blueprint || '';
   }
 
-  async function startStrategicOverviewGeneration(payload, requestId) {
+  async function fetchStrategicOverview(assessment) {
     const res = await fetch(STRATEGIC_API_ENDPOINT, {
-  
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ assessment: payload || {}, requestId })
-    }); 
+      body: JSON.stringify({ assessment: assessment || {} })
+    });
+
     const text = await res.text();
-const json = JSON.parse(text);
+    if (!res.ok) throw new Error(text || 'Overview request failed');
 
-   
-document.getElementById("overviewText").innerText = json.overview || "";
-document.getElementById("positioningPriority").innerText = json.positioning_priority || "";
-document.getElementById("expansionPriority").innerText = json.expansion_priority || "";
-document.getElementById("visibilityPriority").innerText = json.visibility_priority || "";
-document.getElementById("marketPotential").innerText = json.market_potential || "";
-document.getElementById("revenuePotential").innerText = json.revenue_potential || "";
-document.getElementById("blueprintText").innerText = json.blueprint || "";
-
-document.getElementById("loadingScreen").style.display = "none";
-document.getElementById("strategicOverview").style.display = "block";
-
-return {
-  status: "complete",
-  payload: json
-};
-}
-
-  async function fetchStrategicOverviewStatus(requestId, jobId) {
-    const statusUrl = new URL(STRATEGIC_API_ENDPOINT, window.location.origin);
-    statusUrl.searchParams.set('requestId', requestId);
-    if (jobId) statusUrl.searchParams.set('jobId', jobId);
-    const res = await fetch(statusUrl.toString(), { method: 'GET' });
-    const text = await res.text();
-
-console.log(text);
-
-let json;
-
-try {
-  json = JSON.parse(text);
-} catch (e) {
-  console.error("INVALID JSON:", text);
-
-  alert(text);
-
-  return;
-}
-
-    if (res.status === 202 || json.status === 'pending') {
-      return {
-        status: 'pending',
-        requestId: json.requestId || requestId,
-        jobId: json.jobId || jobId || null
-      };
+    try {
+      return JSON.parse(text);
+    } catch (_error) {
+      throw new Error('Invalid JSON from strategic overview API');
     }
-    if (!res.ok) throw new Error('Unable to retrieve generated overview.');
-    if (!json || typeof json.summary !== 'string' || !Array.isArray(json.cards)) {
-      throw new Error('Malformed status response.');
-    }
-    return { status: 'ready', data: json };
   }
 
-  async function showLoadingState() {
+  async function startStrategicLoading() {
     if (!hasValidatedSubmission || isGeneratingOverview) return;
     isGeneratingOverview = true;
-    completeBtn.disabled = true;
+
     statusText.textContent = 'Generating Strategic Overview...';
     shell.classList.add('fade-to-results');
     await new Promise(resolve => setTimeout(resolve, 420));
     shell.classList.add('state-loading');
-    resultsRoot.scrollTop = 0;
-  }
-
-  async function generateStrategicOverview() {
-    if (!latestAssessmentPayload) throw new Error('Missing assessment payload.');
-    if (!latestOverviewRequestId) {
-      latestOverviewRequestId = (window.crypto && crypto.randomUUID)
-        ? crypto.randomUUID()
-        : `sr_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-    }
-
-    const startResponse = await startStrategicOverviewGeneration(latestAssessmentPayload, latestOverviewRequestId);
-    if (startResponse.status === 'ready') return startResponse.data;
-    if (startResponse.requestId) latestOverviewRequestId = startResponse.requestId;
-    if (startResponse.jobId) latestOverviewJobId = startResponse.jobId;
-
-    let attempt = 0;
-    const overview = await startStrategicOverviewGeneration(payload);
-
-document.getElementById("overviewText").innerText = overview.overview || "";
-document.getElementById("positioningPriority").innerText = overview.positioning_priority || "";
-document.getElementById("expansionPriority").innerText = overview.expansion_priority || "";
-document.getElementById("visibilityPriority").innerText = overview.visibility_priority || "";
-document.getElementById("marketPotential").innerText = overview.market_potential || "";
-document.getElementById("revenuePotential").innerText = overview.revenue_potential || "";
-document.getElementById("blueprintText").innerText = overview.blueprint || "";
-
-setApplicationState('state-results');
-  }
-
-  async function startStrategicLoading() {
-    await showLoadingState();
-    const startedAt = Date.now();
+    loadingScreen.style.display = '';
+    strategicOverview.style.display = 'none';
     loadingCopy.textContent = 'Generating Strategic Overview...';
+    resultsRoot.scrollTop = 0;
+
+    const startedAt = Date.now();
+
     try {
-      const overview = await generateStrategicOverview();
-      latestGeneratedOverview = overview;
-      renderOverview(overview);
-      const minCinematicDuration = 2400;
+      const json = await fetchStrategicOverview(latestAssessmentPayload);
+      renderStrategicOverview(json);
+
+      const minDuration = 2400;
       const elapsed = Date.now() - startedAt;
-      if (elapsed < minCinematicDuration) {
-        await new Promise(resolve => setTimeout(resolve, minCinematicDuration - elapsed));
+      if (elapsed < minDuration) {
+        await new Promise(resolve => setTimeout(resolve, minDuration - elapsed));
       }
+
+      loadingScreen.style.display = 'none';
+      strategicOverview.style.display = 'block';
       shell.classList.remove('state-loading');
       shell.classList.add('state-results');
       resultsRoot.scrollTop = 0;
       statusText.textContent = 'Strategic overview generated from your assessment responses.';
-    } catch (_error) {
-      loadingCopy.textContent = 'Finalizing your strategic overview...';
-      statusText.textContent = 'Your strategic overview is still processing. Please stay on this screen.';
-      await new Promise(resolve => setTimeout(resolve, 2400));
+    } catch (error) {
+      console.error('Strategic overview error:', error);
+      loadingCopy.textContent = 'Unable to generate overview. Please try again.';
+      statusText.textContent = 'Generation failed. Close and reopen the assessment to retry.';
       isGeneratingOverview = false;
       return;
     }
+
     isGeneratingOverview = false;
   }
 
@@ -2470,13 +2412,6 @@ setApplicationState('state-results');
     const submissionPayload = extractFilloutSubmissionPayload(event.data);
     if (!submissionPayload || isGeneratingOverview || hasValidatedSubmission) return;
     latestAssessmentPayload = submissionPayload;
-    latestOverviewRequestId =
-      submissionPayload.submissionId ||
-      submissionPayload.submission_id ||
-      submissionPayload.submissionUuid ||
-      submissionPayload.submission_uuid ||
-      null;
-    latestOverviewJobId = null;
     hasValidatedSubmission = true;
     statusText.textContent = 'Submission received. Generating Strategic Overview...';
     startStrategicLoading();
