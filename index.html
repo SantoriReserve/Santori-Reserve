@@ -2384,8 +2384,9 @@
       statusText.textContent = 'Strategic overview generated from your assessment responses.';
     } catch (error) {
       console.error('Strategic overview error:', error);
+      const detail = error && error.message ? error.message : 'Unknown error';
       loadingCopy.textContent = 'Unable to generate overview. Please try again.';
-      statusText.textContent = 'Generation failed. Close and reopen the assessment to retry.';
+      statusText.textContent = detail;
       isGeneratingOverview = false;
       return;
     }
@@ -2446,7 +2447,11 @@
       .map(value => String(value || '').toLowerCase())
       .join(' ');
 
-    const looksLikeSubmission = /(submit|submission|complete|completed|finish|finished|success|form_submitted)/.test(joinedSignals);
+    const looksLikeSubmission =
+      /(submit|submission|complete|completed|finish|finished|success|form_submitted|thank)/.test(joinedSignals) ||
+      (String(parsed.source || '').toLowerCase() === 'fillout' &&
+        /(submit|submission|complete|finished)/.test(JSON.stringify(parsed).toLowerCase()));
+
     if (!looksLikeSubmission) return null;
 
     const nested =
@@ -2472,7 +2477,7 @@
 
     const payload = typeof nested === 'object' && nested !== null ? { ...nested } : {};
     if (submissionId) payload.submissionId = String(submissionId);
-    if (!submissionId && !Object.keys(payload).length) return null;
+    payload.submitted = true;
 
     logAssessment('Extracted Fillout submission payload', payload);
     return payload;
