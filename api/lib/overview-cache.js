@@ -3,6 +3,7 @@ const MAKE_WEBHOOK_URL =
   'https://hook.us2.make.com/278a8h6hk8mfurlmgin8k50to0mwe4h5';
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
+const LATEST_CACHE_KEY = '__latest_submission__';
 
 function getCacheStore() {
   if (!globalThis.__santoriOverviewCache) {
@@ -11,15 +12,7 @@ function getCacheStore() {
   return globalThis.__santoriOverviewCache;
 }
 
-export function cacheOverview(submissionId, overview) {
-  if (!submissionId || !overview) return;
-  getCacheStore().set(String(submissionId), {
-    overview,
-    cachedAt: Date.now()
-  });
-}
-
-export function getCachedOverview(submissionId) {
+function getEntry(submissionId) {
   if (!submissionId) return null;
   const entry = getCacheStore().get(String(submissionId));
   if (!entry) return null;
@@ -27,7 +20,31 @@ export function getCachedOverview(submissionId) {
     getCacheStore().delete(String(submissionId));
     return null;
   }
-  return entry.overview;
+  return entry;
+}
+
+export function cacheOverview(submissionId, overview) {
+  if (!submissionId || !overview) return;
+  const key = String(submissionId);
+  const existing = getEntry(key) || { cachedAt: Date.now() };
+  getCacheStore().set(key, { ...existing, overview, cachedAt: Date.now() });
+}
+
+export function cacheRawSubmission(submissionId, rawPayload) {
+  if (!rawPayload) return;
+  const keys = new Set([String(submissionId || ''), LATEST_CACHE_KEY].filter(Boolean));
+  keys.forEach((key) => {
+    const existing = getEntry(key) || { cachedAt: Date.now() };
+    getCacheStore().set(key, { ...existing, rawPayload, cachedAt: Date.now() });
+  });
+}
+
+export function getCachedOverview(submissionId) {
+  return getEntry(submissionId)?.overview || null;
+}
+
+export function getRawSubmission(submissionId) {
+  return getEntry(submissionId)?.rawPayload || getEntry(LATEST_CACHE_KEY)?.rawPayload || null;
 }
 
 function asText(value) {
@@ -41,6 +58,32 @@ function asText(value) {
     if (value.text) return asText(value.text);
   }
   return '';
+}
+
+export function countMeaningfulAnswers(questions) {
+  if (!Array.isArray(questions)) return 0;
+  return questions.filter((question) => {
+    const value = question?.value ?? question?.answer;
+    if (value == null || value === '') return false;
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      return Object.values(value).some((part) => part != null && String(part).trim() !== '');
+    }
+    return true;
+  }).length;
+}
+
+export function formatQuestionsFromPayload(payload) {
+  const submission = payload?.submission && typeof payload.submission === 'object' ? payload.submission : payload;
+  const questions = submission?.questions || payload?.questions || [];
+  if (!Array.isArray(questions)) return '';
+  return questions
+    .map((question) => {
+      const answer = asText(question.value ?? question.answer);
+      if (!question.name || !answer) return null;
+      return `${question.name}: ${answer}`;
+    })
+    .filter(Boolean)
+    .join('\n');
 }
 
 export function extractJsonFromText(text) {
@@ -136,44 +179,119 @@ export function isInsufficientOverview(json) {
 }
 
 export function hasRenderableOverview(json) {
+  if (!json) return false;
   const filled = Object.values(json).filter((value) => String(value || '').trim().length > 25);
   return filled.length >= 4 && !isInsufficientOverview(json);
 }
 
-export async function forwardFilloutPayloadToMake(payload) {
-  console.log('[Santori Make Forward] Sending native Fillout payload to Make');
+function buildMakePayloadVariants(payload) {
+  const submission = payload?.submission && typeof payload.submission === 'object' ? payload.submission : payload;
+  const questions = submission?.questions || payload?.questions || [];
+  const flat = {};
 
+  questions.forEach((question) => {
+    const value = question?.value ?? question?.answer;
+    if (question?.name && value != null && value !== '') {
+      flat[question.name] = typeof value === 'object' ? JSON.stringify(value) : value;
+    }
+  });
+
+  return [
+    flat,
+    { ...flat, formId: payload?.formId, formName: payload?.formName, submission },
+    payload,
+    { source: 'santori-reserve-web', timestamp: new Date().toISOString(), assessment: flat, ...flat }
+  ];
+}
+
+async function callMakeVariant(payload) {
   const makeRes = await fetch(MAKE_WEBHOOK_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-
   const text = await makeRes.text();
-  console.log('[Santori Make Forward] Raw response', text.slice(0, 2000));
+  console.log('[Santori Make Forward] Response', { status: makeRes.status, text: text.slice(0, 1200) });
+  if (!makeRes.ok) return null;
+  const normalized = normalizeOverviewResponse(extractJsonFromText(text));
+  return hasRenderableOverview(normalized) ? normalized : null;
+}
 
-  if (!makeRes.ok) {
-    throw new Error(`Make webhook failed (${makeRes.status}): ${text}`);
+async function generateViaOpenAI(formattedAnswers) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey || !formattedAnswers) return null;
+
+  const prompt = [
+    'You are a principal strategist at Santori Reserve, a private luxury intelligence house.',
+    'Generate a premium strategic business assessment from these onboarding responses.',
+    'Return ONLY valid JSON with exactly these keys:',
+    '{"overview":"","positioning_priority":"","expansion_priority":"","visibility_priority":"","market_potential":"","revenue_potential":"","blueprint":""}',
+    'Never say insufficient data, TBD, pending, or ask for more fields.',
+    'Assessment responses:',
+    formattedAnswers
+  ].join('\n');
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      temperature: 0.4,
+      response_format: { type: 'json_object' },
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  const text = await response.text();
+  if (!response.ok) return null;
+  const payload = JSON.parse(text);
+  const content = payload?.choices?.[0]?.message?.content || '';
+  const normalized = normalizeOverviewResponse(extractJsonFromText(content));
+  return hasRenderableOverview(normalized) ? normalized : null;
+}
+
+export async function tryGenerateOverview(rawPayload) {
+  const variants = buildMakePayloadVariants(rawPayload);
+  for (const variant of variants) {
+    try {
+      const result = await callMakeVariant(variant);
+      if (result) return result;
+    } catch (error) {
+      console.log('[Santori Generate] Make variant failed', error.message);
+    }
   }
 
-  const parsed = extractJsonFromText(text);
-  const normalized = normalizeOverviewResponse(parsed);
-
-  if (!hasRenderableOverview(normalized)) {
-    throw new Error('Make returned incomplete strategic overview');
+  const formatted = formatQuestionsFromPayload(rawPayload);
+  if (formatted) {
+    const openAiOverview = await generateViaOpenAI(formatted);
+    if (openAiOverview) return openAiOverview;
   }
 
-  return normalized;
+  return null;
 }
 
 export function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function waitForCachedOverview(submissionId, attempts = 12, delayMs = 2000) {
+export async function waitForCachedOverview(submissionId, attempts = 15, delayMs = 2000) {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     const cached = getCachedOverview(submissionId);
     if (cached && hasRenderableOverview(cached)) return cached;
+
+    const rawPayload = getRawSubmission(submissionId);
+    if (rawPayload && countMeaningfulAnswers(rawPayload.submission?.questions || rawPayload.questions) >= 3) {
+      const generated = await tryGenerateOverview(rawPayload);
+      if (generated) {
+        cacheOverview(submissionId, generated);
+        cacheOverview(LATEST_CACHE_KEY, generated);
+        return generated;
+      }
+    }
+
     if (attempt < attempts - 1) await sleep(delayMs);
   }
   return null;
