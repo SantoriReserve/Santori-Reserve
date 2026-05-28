@@ -17,12 +17,18 @@ function log(label, value) {
 
 function extractSubmissionId(raw) {
   if (!raw || typeof raw !== 'object') return '';
+  const nested = raw.submission && typeof raw.submission === 'object' ? raw.submission : null;
   return (
     raw.submissionId ||
     raw.submission_id ||
     raw.submissionUuid ||
     raw.submission_uuid ||
+    (nested && nested.submissionId) ||
+    (nested && nested.submission_id) ||
+    (nested && nested.submissionUuid) ||
+    (nested && nested.submission_uuid) ||
     raw.id ||
+    (nested && nested.id) ||
     ''
   );
 }

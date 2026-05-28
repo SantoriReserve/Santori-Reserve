@@ -2474,16 +2474,24 @@
       parsed.formData ||
       {};
 
+    const submissionBlock =
+      parsed.submission && typeof parsed.submission === 'object' ? parsed.submission : nested;
+
     const submissionId =
       parsed.submissionId ||
       parsed.submissionUuid ||
       parsed.submission_id ||
       parsed.submission_uuid ||
+      submissionBlock.submissionId ||
+      submissionBlock.submissionUuid ||
+      submissionBlock.submission_id ||
+      submissionBlock.submission_uuid ||
       nested.submissionId ||
       nested.submissionUuid ||
       nested.submission_id ||
       nested.submission_uuid ||
       parsed.id ||
+      submissionBlock.id ||
       null;
 
     const payload = typeof nested === 'object' && nested !== null ? { ...nested } : {};
