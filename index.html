@@ -2319,36 +2319,47 @@
   async function fetchStrategicOverview(assessment) {
     logAssessment('Sending assessment payload', assessment);
 
-    const res = await fetch(STRATEGIC_API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ assessment: assessment || {} })
-    });
+    const maxAttempts = 16;
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const res = await fetch(STRATEGIC_API_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assessment: assessment || {} })
+      });
 
-    const text = await res.text();
-    logAssessment('Raw API response', text);
+      const text = await res.text();
+      logAssessment('Raw API response', { attempt: attempt + 1, status: res.status, text });
 
-    let json;
-    try {
-      json = JSON.parse(text);
-    } catch (error) {
-      logAssessment('JSON parse failed', { text, error: error.message });
-      throw new Error('Invalid JSON from strategic overview API');
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch (error) {
+        logAssessment('JSON parse failed', { text, error: error.message });
+        throw new Error('Invalid JSON from strategic overview API');
+      }
+
+      if (res.status === 202 || json.status === 'pending') {
+        loadingCopy.textContent = `Generating Strategic Overview${'.'.repeat((attempt % 3) + 1)}`;
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        continue;
+      }
+
+      if (!res.ok) {
+        logAssessment('API error response', json);
+        throw new Error(json.message || json.error || 'Overview request failed');
+      }
+
+      logAssessment('Parsed API JSON', json);
+
+      if (!hasRenderableOverview(json)) {
+        logAssessment('Missing or insufficient overview fields', normalizeOverviewResponse(json));
+        throw new Error('AI response did not contain enough strategic content.');
+      }
+
+      return normalizeOverviewResponse(json);
     }
 
-    if (!res.ok) {
-      logAssessment('API error response', json);
-      throw new Error(json.message || json.error || 'Overview request failed');
-    }
-
-    logAssessment('Parsed API JSON', json);
-
-    if (!hasRenderableOverview(json)) {
-      logAssessment('Missing or insufficient overview fields', normalizeOverviewResponse(json));
-      throw new Error('AI response did not contain enough strategic content.');
-    }
-
-    return normalizeOverviewResponse(json);
+    throw new Error('Timed out waiting for strategic overview. Check Fillout webhook configuration.');
   }
 
   async function startStrategicLoading() {
