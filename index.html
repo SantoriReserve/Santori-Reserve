@@ -206,7 +206,7 @@
     position: relative;
     z-index: 2;
     padding-top: clamp(140px, 18vh, 180px);
-    padding-bottom: clamp(120px, 16vh, 160px);
+    padding-bottom: clamp(130px, 16vh, 170px);
   }
 
   .hero-grain {
@@ -338,40 +338,60 @@
 
   .hero-bottom {
     position: absolute;
-    bottom: 52px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(920px, calc(100% - 120px));
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(24px, 4vw, 48px);
-    align-items: end;
+    bottom: 48px;
+    left: 0;
+    right: 0;
     z-index: 2;
     opacity: 0;
     animation: fadeUp 1s ease 1.1s forwards;
     pointer-events: none;
+    padding: 0 clamp(24px, 5vw, 60px);
+  }
+
+  .hero-pillars {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    max-width: 960px;
+    margin: 0 auto;
+    border-top: 1px solid var(--border-light);
+    padding-top: 28px;
   }
 
   .hero-stat {
     text-align: center;
     min-width: 0;
+    padding: 0 clamp(12px, 2vw, 24px);
+    position: relative;
+  }
+  .hero-stat:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 36px;
+    background: var(--border-light);
   }
   .hero-stat-num {
     font-family: var(--font-serif);
-    font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+    font-size: clamp(1.1rem, 2vw, 1.65rem);
     font-weight: 400;
     color: var(--champagne);
-    line-height: 1.1;
+    line-height: 1.15;
     display: block;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
   .hero-stat-label {
-    font-size: 0.55rem;
-    letter-spacing: 0.2em;
+    font-size: clamp(0.48rem, 0.9vw, 0.55rem);
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--warm-grey);
-    margin-top: 6px;
+    margin-top: 8px;
     display: block;
+    line-height: 1.5;
   }
 
   /* ─── DIVIDER ────────────────────────────────── */
@@ -1771,11 +1791,9 @@
     nav.scrolled { padding: 16px 40px; }
     .hero-line-left, .hero-line-right { left: 40px; right: 40px; }
     .container { padding: 0 40px; }
-    .hero-bottom {
-      width: calc(100% - 80px);
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
+    .hero-bottom { padding: 0 40px; }
+    .hero-pillars { max-width: 100%; }
+    .hero-stat { padding: 0 12px; }
     .scroll-indicator { right: 40px; display: none; }
 
     #home .container {
@@ -1820,13 +1838,24 @@
 
     .hero-line-left, .hero-line-right { display: none; }
     .hero-bottom {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-      width: calc(100% - 48px);
-      bottom: 40px;
+      bottom: 32px;
+      padding: 0 24px;
     }
-    .hero-stat { text-align: center; }
+    .hero-pillars {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      padding-top: 22px;
+    }
+    .hero-stat { padding: 0 8px; }
+    .hero-stat:not(:last-child)::after { height: 28px; }
+    .hero-stat-num {
+      font-size: clamp(0.72rem, 2.8vw, 1rem);
+      letter-spacing: 0.1em;
+    }
+    .hero-stat-label {
+      font-size: clamp(0.42rem, 1.8vw, 0.48rem);
+      letter-spacing: 0.1em;
+      margin-top: 6px;
+    }
     .scroll-indicator { display: none; }
     .hero-headline { font-size: clamp(2.35rem, 10vw, 3.2rem); line-height: 1.08; }
     .hero-sub { max-width: 100%; margin-bottom: 36px; }
@@ -1838,7 +1867,7 @@
     #home .container,
     #home .hero-inner {
       padding-top: clamp(120px, 16vh, 150px);
-      padding-bottom: clamp(220px, 28vh, 280px);
+      padding-bottom: clamp(140px, 18vh, 180px);
     }
 
     #about, #services, #clients, #ventures, #philosophy, #intelligence, #inquiry { padding: 88px 0; }
@@ -1885,7 +1914,7 @@
     .client-list { grid-template-columns: 1fr; }
     .nav-logo { font-size: 1.05rem; letter-spacing: 0.16em; }
     .btn-submit { width: 100%; text-align: center; }
-    .hero-bottom { width: calc(100% - 40px); }
+    .hero-bottom { width: auto; padding: 0 20px; }
   }
 </style>
 </head>
@@ -2020,11 +2049,11 @@
 
     <h1 class="hero-headline">
       Where Luxury<br>
-      Ecosystems <em>Are Built.</em>
+      Authority <em>Is Built.</em>
     </h1>
 
     <p class="hero-sub">
-      Santori Reserve operates at the intersection of intelligence, influence, relationships, experiences, and growth — helping ambitious brands, founders, creators, and ventures establish authority, unlock strategic opportunity, and build lasting presence within the luxury economy.
+      Santori Reserve operates at the intersection of intelligence, influence, relationships, and venture development — helping ambitious brands, founders, creators, and ventures establish authority, build strategic influence, and create lasting presence within the luxury economy.
     </p>
 
     <div class="hero-actions">
@@ -2035,17 +2064,19 @@
   </div>
 
   <div class="hero-bottom">
-    <div class="hero-stat">
-      <span class="hero-stat-num">Intelligence</span>
-      <span class="hero-stat-label">Market & Cultural Insight</span>
-    </div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">Influence</span>
-      <span class="hero-stat-label">Positioning & Authority</span>
-    </div>
-    <div class="hero-stat">
-      <span class="hero-stat-num">Venture</span>
-      <span class="hero-stat-label">Platform & Ecosystem</span>
+    <div class="hero-pillars">
+      <div class="hero-stat">
+        <span class="hero-stat-num">Intelligence</span>
+        <span class="hero-stat-label">Market &amp; Cultural Insight</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">Influence</span>
+        <span class="hero-stat-label">Positioning &amp; Authority</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">Venture</span>
+        <span class="hero-stat-label">Ventures &amp; Platforms</span>
+      </div>
     </div>
   </div>
 
