@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Santori Reserve — Private Luxury Strategy House</title>
+<title>Santori Reserve — Luxury Strategy & Venture House</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -562,6 +562,227 @@
     color: var(--champagne);
     border: 1px solid var(--border);
     padding: 5px 12px;
+  }
+
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-light);
+    border: 1px solid var(--border-light);
+  }
+
+  .pillar-block {
+    background: var(--charcoal);
+    padding: 56px 48px;
+    transition: background 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+  .pillar-block::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 1px;
+    background: var(--champagne);
+    transition: width 0.5s ease;
+  }
+  .pillar-block:hover::before { width: 100%; }
+  .pillar-block:hover { background: rgba(201,169,110,0.03); }
+
+  .pillar-block-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    color: var(--champagne);
+    opacity: 0.5;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .pillar-block-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 2.5vw, 2rem);
+    font-weight: 400;
+    color: var(--ivory);
+    margin-bottom: 16px;
+    line-height: 1.15;
+  }
+  .pillar-block-purpose {
+    font-size: 0.72rem;
+    color: var(--warm-grey);
+    line-height: 1.85;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .pillar-service-list {
+    list-style: none;
+    display: grid;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .pillar-service-list li {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--light-grey);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .pillar-service-list li::before {
+    content: '—';
+    color: var(--champagne);
+    flex-shrink: 0;
+  }
+  .pillar-deliverables {
+    font-size: 0.65rem;
+    color: var(--warm-grey);
+    line-height: 1.8;
+    font-style: italic;
+  }
+  .pillar-deliverables strong {
+    font-style: normal;
+    font-size: 0.52rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  /* ─── VENTURES ───────────────────────────────── */
+  #ventures {
+    background: var(--dark-surface);
+    padding: 160px 0;
+    min-height: auto;
+  }
+
+  .ventures-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    margin-bottom: 80px;
+    align-items: end;
+  }
+
+  .ventures-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-light);
+    border: 1px solid var(--border-light);
+    margin-bottom: 48px;
+  }
+
+  .venture-card {
+    background: var(--dark-surface);
+    padding: 56px 48px;
+    transition: background 0.3s;
+  }
+  .venture-card:hover { background: rgba(201,169,110,0.04); }
+
+  .venture-label {
+    font-size: 0.52rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--champagne);
+    margin-bottom: 20px;
+    display: block;
+  }
+  .venture-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+    font-weight: 300;
+    color: var(--ivory);
+    margin-bottom: 16px;
+    line-height: 1.05;
+  }
+  .venture-desc {
+    font-size: 0.74rem;
+    color: var(--warm-grey);
+    line-height: 1.9;
+    max-width: 420px;
+  }
+
+  .ventures-note {
+    border-left: 1px solid var(--border);
+    padding-left: 40px;
+    max-width: 640px;
+  }
+  .ventures-note p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--ivory);
+    line-height: 1.65;
+  }
+
+  /* ─── PHILOSOPHY ─────────────────────────────── */
+  #philosophy {
+    padding: 160px 0;
+    background: var(--charcoal);
+    min-height: auto;
+  }
+
+  .philosophy-header {
+    max-width: 720px;
+    margin-bottom: 80px;
+  }
+
+  .philosophy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-light);
+    border: 1px solid var(--border-light);
+  }
+
+  .philosophy-item {
+    background: var(--charcoal);
+    padding: 48px 44px;
+    transition: background 0.3s;
+  }
+  .philosophy-item:hover { background: rgba(201,169,110,0.03); }
+
+  .philosophy-item p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--ivory);
+    line-height: 1.45;
+  }
+  .philosophy-item span {
+    display: block;
+    margin-top: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    font-style: normal;
+    letter-spacing: 0.06em;
+    color: var(--warm-grey);
+    line-height: 1.85;
+  }
+
+  .philosophy-closing {
+    margin-top: 64px;
+    text-align: center;
+    max-width: 780px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .philosophy-closing p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+    font-weight: 300;
+    color: var(--ivory);
+    line-height: 1.5;
+  }
+  .philosophy-closing em {
+    color: var(--champagne);
+    font-style: italic;
   }
 
   /* ─── WHO WE WORK WITH ────────────────────────── */
@@ -1418,7 +1639,11 @@
     .assessment-shell { width: 100%; margin: 0; height: calc(var(--app-vh, 1vh) * 100); border-left: 0; border-right: 0; }
     .assessment-frame-wrap { min-height: 0; height: 100%; }
     .assessment-footer { display: none; }
-    .overview-cards { grid-template-columns: 1fr 1fr; }
+    .pillars-grid { grid-template-columns: 1fr; }
+    .ventures-header { grid-template-columns: 1fr; gap: 40px; }
+    .ventures-grid { grid-template-columns: 1fr; }
+    .philosophy-grid { grid-template-columns: 1fr; }
+    .philosophy-item[style] { grid-column: auto !important; }
     .blueprint-conversion { grid-template-columns: 1fr; }
   }
 
@@ -1434,7 +1659,7 @@
     .hero-bottom { display: none; }
     .hero-headline { font-size: clamp(2.4rem, 9vw, 3.6rem); }
 
-    #about, #services, #clients, #intelligence, #inquiry { padding: 100px 0; }
+    #about, #services, #clients, #ventures, #philosophy, #intelligence, #inquiry { padding: 100px 0; }
 
     .about-grid { grid-template-columns: 1fr; gap: 60px; }
     .about-pillars { grid-template-columns: 1fr; }
@@ -1474,8 +1699,9 @@
   <a href="#home" class="nav-logo">Santori<span>&nbsp;Reserve</span></a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
-    <li><a href="#services">Services</a></li>
-    <li><a href="#clients">Clients</a></li>
+    <li><a href="#services">Capabilities</a></li>
+    <li><a href="#ventures">Ventures</a></li>
+    <li><a href="#philosophy">Philosophy</a></li>
     <li><a href="#intelligence">Intelligence</a></li>
   </ul>
   <a href="#inquiry" class="nav-cta">Private Inquiry</a>
@@ -1488,8 +1714,9 @@
 <div class="mobile-menu" id="mobileMenu">
   <button class="mobile-close" id="mobileClose">✕</button>
   <a href="#about" class="mobile-link">About</a>
-  <a href="#services" class="mobile-link">Services</a>
-  <a href="#clients" class="mobile-link">Clients</a>
+  <a href="#services" class="mobile-link">Capabilities</a>
+  <a href="#ventures" class="mobile-link">Ventures</a>
+  <a href="#philosophy" class="mobile-link">Philosophy</a>
   <a href="#intelligence" class="mobile-link">Intelligence</a>
   <a href="#inquiry" class="mobile-link">Private Inquiry</a>
   <a href="#" class="mobile-link js-open-assessment">Strategic Assessment</a>
@@ -1588,37 +1815,37 @@
   <div class="hero-line-right"></div>
 
   <div class="container" style="position:relative; z-index:2; padding-top: 180px; padding-bottom: 160px;">
-    <div class="hero-eyebrow">Private Luxury Strategy House</div>
+    <div class="hero-eyebrow">Luxury Strategy & Venture House</div>
 
     <h1 class="hero-headline">
-      Where Luxury Brands<br>
-      Enter <em>New Markets</em><br>
-      With Precision.
+      Where Influence,<br>
+      Intelligence & <em>Venture</em><br>
+      Converge.
     </h1>
 
     <p class="hero-sub">
-      Santori Reserve provides international market intelligence, cultural positioning, strategic access, and expansion architecture for the world's most discerning brands and private founders.
+      Santori Reserve operates at the intersection of intelligence, influence, relationships, experiences, and growth — helping ambitious brands, founders, creators, and ventures navigate luxury ecosystems, establish authority, and unlock long-term strategic opportunity.
     </p>
 
     <div class="hero-actions">
       <a href="#inquiry" class="btn-primary">Request Private Access</a>
-      <a href="#services" class="btn-secondary">Explore Services</a>
+      <a href="#services" class="btn-secondary">Explore Capabilities</a>
     </div>
     <a href="#" class="assessment-launch js-open-assessment">Begin Strategic Assessment</a>
   </div>
 
   <div class="hero-bottom">
     <div class="hero-stat">
-      <span class="hero-stat-num">12+</span>
-      <span class="hero-stat-label">Markets Covered</span>
+      <span class="hero-stat-num">Intelligence</span>
+      <span class="hero-stat-label">Market & Cultural Insight</span>
     </div>
     <div class="hero-stat">
-      <span class="hero-stat-num">Global</span>
-      <span class="hero-stat-label">Reach & Access</span>
+      <span class="hero-stat-num">Influence</span>
+      <span class="hero-stat-label">Positioning & Authority</span>
     </div>
     <div class="hero-stat">
-      <span class="hero-stat-num">Private</span>
-      <span class="hero-stat-label">Advisory Model</span>
+      <span class="hero-stat-num">Venture</span>
+      <span class="hero-stat-label">Platform & Ecosystem</span>
     </div>
   </div>
 
@@ -1634,7 +1861,7 @@
     <div class="assessment-inline-inner reveal">
       <div class="section-label" style="justify-content:center;">Strategic Assessment</div>
       <h2>Begin Your Private <em>Strategic Onboarding</em></h2>
-      <p>Complete the Santori Reserve assessment to unlock your AI-generated strategic overview and next-step recommendations without leaving this immersive experience.</p>
+      <p>Complete the Santori Reserve assessment to unlock your AI-generated strategic overview — a private onboarding experience designed for founders and brands entering the Santori ecosystem.</p>
       <a href="#" class="btn-primary js-open-assessment">Begin Strategic Assessment</a>
     </div>
   </div>
@@ -1643,23 +1870,23 @@
 <!-- PHILOSOPHY TICKER -->
 <div class="philosophy-strip">
   <div class="philosophy-ticker">
-    <span>International Expansion</span><span class="dot">◆</span>
-    <span>Cultural Intelligence</span><span class="dot">◆</span>
-    <span>Strategic Access</span><span class="dot">◆</span>
-    <span>Market Positioning</span><span class="dot">◆</span>
-    <span>Editorial Visibility</span><span class="dot">◆</span>
-    <span>Partnership Architecture</span><span class="dot">◆</span>
-    <span>Luxury Growth Strategy</span><span class="dot">◆</span>
-    <span>Private Advisory</span><span class="dot">◆</span>
+    <span>Influence Compounds</span><span class="dot">◆</span>
+    <span>Relationships Create Leverage</span><span class="dot">◆</span>
+    <span>Opportunity Follows Positioning</span><span class="dot">◆</span>
+    <span>Luxury Is Built Through Perception</span><span class="dot">◆</span>
+    <span>Ecosystems Are Intentionally Designed</span><span class="dot">◆</span>
+    <span>Intelligence</span><span class="dot">◆</span>
+    <span>Strategic Growth</span><span class="dot">◆</span>
+    <span>Venture Development</span><span class="dot">◆</span>
     <!-- duplicate for seamless loop -->
-    <span>International Expansion</span><span class="dot">◆</span>
-    <span>Cultural Intelligence</span><span class="dot">◆</span>
-    <span>Strategic Access</span><span class="dot">◆</span>
-    <span>Market Positioning</span><span class="dot">◆</span>
-    <span>Editorial Visibility</span><span class="dot">◆</span>
-    <span>Partnership Architecture</span><span class="dot">◆</span>
-    <span>Luxury Growth Strategy</span><span class="dot">◆</span>
-    <span>Private Advisory</span><span class="dot">◆</span>
+    <span>Influence Compounds</span><span class="dot">◆</span>
+    <span>Relationships Create Leverage</span><span class="dot">◆</span>
+    <span>Opportunity Follows Positioning</span><span class="dot">◆</span>
+    <span>Luxury Is Built Through Perception</span><span class="dot">◆</span>
+    <span>Ecosystems Are Intentionally Designed</span><span class="dot">◆</span>
+    <span>Intelligence</span><span class="dot">◆</span>
+    <span>Strategic Growth</span><span class="dot">◆</span>
+    <span>Venture Development</span><span class="dot">◆</span>
   </div>
 </div>
 
@@ -1673,19 +1900,19 @@
       <div>
         <div class="section-label reveal">About the House</div>
         <h2 class="section-headline reveal reveal-delay-1">
-          A Private Intelligence<br>
-          Firm for <em>Luxury</em><br>
-          Expansion.
+          A Luxury Strategy<br>
+          & <em>Venture</em> House<br>
+          for the Future.
         </h2>
 
         <div class="about-manifesto reveal reveal-delay-2">
-          <p>"We do not work with everyone. We work with the right ones."</p>
+          <p>"We do not simply advise. We build, connect, and shape the ecosystems in which luxury influence is earned."</p>
         </div>
 
         <p class="section-body reveal reveal-delay-3">
-          Santori Reserve is a private luxury strategy house helping brands expand, position, and integrate into new markets through intelligence, partnerships, strategic access, and cultural precision.<br><br>
-          Founded on the belief that luxury brands deserve more than surface-level marketing advice, Santori Reserve operates at the intersection of intelligence and execution — bridging the gap between where a brand stands today and where it belongs globally.<br><br>
-          We are selective by design. Every engagement is confidential, customized, and built around a single objective: sustainable, elevated growth in the markets that matter most.
+          Santori Reserve is a luxury strategy and venture house operating at the intersection of intelligence, influence, relationships, experiences, and growth.<br><br>
+          We help ambitious brands, founders, creators, and ventures navigate luxury ecosystems, establish influence, create strategic growth, and unlock long-term opportunity — through intelligence, positioning, relationship capital, venture development, and cultural precision.<br><br>
+          Santori is not a traditional agency. We function as a strategic ecosystem, venture platform, and luxury institution — selective by design, global in ambition, and built for those operating at the highest level of their category.
         </p>
       </div>
 
@@ -1694,28 +1921,28 @@
           <div class="pillar reveal">
             <span class="pillar-num">01</span>
             <div class="pillar-title">Intelligence</div>
-            <p class="pillar-desc">Deep market, cultural, and consumer intelligence that eliminates guesswork and costly entry mistakes.</p>
+            <p class="pillar-desc">The insight, research, and market understanding required to operate successfully within luxury ecosystems.</p>
           </div>
           <div class="pillar reveal reveal-delay-1">
             <span class="pillar-num">02</span>
-            <div class="pillar-title">Access</div>
-            <p class="pillar-desc">Curated introductions, room access, and industry placement that most brands cannot buy or manufacture.</p>
+            <div class="pillar-title">Influence</div>
+            <p class="pillar-desc">Authority, prestige, and cultural relevance — establishing visibility through positioning, not promotion.</p>
           </div>
           <div class="pillar reveal reveal-delay-2">
             <span class="pillar-num">03</span>
-            <div class="pillar-title">Positioning</div>
-            <p class="pillar-desc">Cultural and editorial positioning that ensures your brand occupies the right space in every new market.</p>
+            <div class="pillar-title">Relationships</div>
+            <p class="pillar-desc">Strategic alignment between brands, founders, industries, and opportunities — relationship capital, not networking.</p>
           </div>
           <div class="pillar reveal reveal-delay-3">
             <span class="pillar-num">04</span>
-            <div class="pillar-title">Architecture</div>
-            <p class="pillar-desc">End-to-end expansion and partnership architecture designed for longevity, not short-term visibility.</p>
+            <div class="pillar-title">Ventures</div>
+            <p class="pillar-desc">Building, supporting, and developing ventures, experiences, and long-term opportunity across luxury industries.</p>
           </div>
         </div>
 
         <div style="margin-top: 48px; padding: 36px 40px; border: 1px solid var(--border-light);" class="reveal">
           <p style="font-size: 0.65rem; letter-spacing: 0.06em; color: var(--warm-grey); line-height: 1.9;">
-            Santori Reserve operates on an inquiry-only basis. Engagements are limited to ensure the highest level of strategic attention, discretion, and results for every client we serve.
+            Our mission is to shape the future of luxury through influence, intelligence, opportunity, relationships, ventures, and experiences — not simply to provide access or advice, but to build enduring strategic advantage.
           </p>
           <a href="#inquiry" class="btn-secondary" style="display:inline-flex; margin-top:20px; font-size: 0.58rem;">Apply for a Private Consultation</a>
         </div>
@@ -1733,111 +1960,83 @@
 
     <div class="services-header">
       <div>
-        <div class="section-label reveal">Our Services</div>
+        <div class="section-label reveal">Capabilities</div>
         <h2 class="section-headline reveal reveal-delay-1">
-          Capabilities Built<br>
-          for <em>Serious</em><br>
-          Brands.
+          Four Pillars.<br>
+          One <em>Strategic</em><br>
+          Ecosystem.
         </h2>
       </div>
       <div class="services-intro">
         <p class="section-body reveal reveal-delay-2">
-          Every Santori Reserve service is built to solve a specific failure point in luxury market expansion. We do not offer generic strategy. We offer precise, high-level intelligence and execution designed for brands that operate — or intend to operate — at the top of their category.
+          Santori Reserve is organized around four interconnected pillars — each designed to help ambitious brands, founders, and ventures build influence, navigate luxury markets, and create long-term strategic growth. This is not a menu of disconnected services. It is an integrated operating model for the luxury economy.
         </p>
       </div>
     </div>
 
-    <div class="services-grid reveal">
+    <div class="pillars-grid reveal">
 
-      <div class="service-card">
-        <span class="service-num">01</span>
-        <h3 class="service-title">International Market Intelligence</h3>
-        <p class="service-body">Before entering any market, you need to understand it. We deliver deep intelligence on consumer behavior, market infrastructure, regional competitors, distribution channels, and timing. We prevent costly, uninformed entry decisions that damage brand equity.</p>
-        <div class="service-tags">
-          <span class="service-tag">For: Expanding Brands</span>
-          <span class="service-tag">Market Reports</span>
-          <span class="service-tag">Competitive Mapping</span>
-        </div>
+      <div class="pillar-block">
+        <span class="pillar-block-num">Pillar 01</span>
+        <h3 class="pillar-block-title">Intelligence</h3>
+        <p class="pillar-block-purpose">Provide the intelligence, insight, and market understanding required to operate successfully within luxury ecosystems.</p>
+        <ul class="pillar-service-list">
+          <li>International Market Intelligence</li>
+          <li>Cultural Positioning Intelligence</li>
+          <li>Luxury Ecosystem Intelligence</li>
+          <li>Expansion Architecture</li>
+          <li>Strategic Advisory</li>
+        </ul>
+        <p class="pillar-deliverables"><strong>Deliverables</strong>Research reports, positioning audits, expansion roadmaps, ecosystem mapping, strategic recommendations, market-entry frameworks, and opportunity assessments.</p>
       </div>
 
-      <div class="service-card">
-        <span class="service-num">02</span>
-        <h3 class="service-title">Cultural Positioning Intelligence</h3>
-        <p class="service-body">Culture dictates perception. We analyze how luxury is consumed, communicated, and valued within your target markets — ensuring your brand speaks the right language, references the right signals, and lands with the cultural authority it deserves.</p>
-        <div class="service-tags">
-          <span class="service-tag">For: Global Brands</span>
-          <span class="service-tag">Cultural Analysis</span>
-          <span class="service-tag">Brand Positioning</span>
-        </div>
+      <div class="pillar-block">
+        <span class="pillar-block-num">Pillar 02</span>
+        <h3 class="pillar-block-title">Influence & Positioning</h3>
+        <p class="pillar-block-purpose">Help brands and individuals establish relevance, authority, prestige, and visibility within luxury markets — through influence, not marketing.</p>
+        <ul class="pillar-service-list">
+          <li>Luxury Visibility Strategy</li>
+          <li>Editorial Architecture</li>
+          <li>Campaign Architecture</li>
+          <li>Authority Positioning</li>
+          <li>Cultural Relevance Strategy</li>
+        </ul>
+        <p class="pillar-deliverables"><strong>Focus</strong>Prestige, perception, positioning, and long-term brand equity — never social media management or promotional tactics.</p>
       </div>
 
-      <div class="service-card">
-        <span class="service-num">03</span>
-        <h3 class="service-title">Expansion Architecture</h3>
-        <p class="service-body">We design the full strategic framework for your international expansion — market sequencing, entry strategy, partnership requirements, visibility timelines, and risk mitigation. A clear, executable roadmap from where you are to where you intend to be.</p>
-        <div class="service-tags">
-          <span class="service-tag">For: Founders & Executives</span>
-          <span class="service-tag">Strategic Roadmaps</span>
-        </div>
+      <div class="pillar-block">
+        <span class="pillar-block-num">Pillar 03</span>
+        <h3 class="pillar-block-title">Relationships & Partnerships</h3>
+        <p class="pillar-block-purpose">Create strategic alignment between brands, founders, creators, industries, and opportunities — relationship capital, not networking.</p>
+        <ul class="pillar-service-list">
+          <li>Strategic Partnerships</li>
+          <li>Industry Introductions</li>
+          <li>Partnership Architecture</li>
+          <li>Ecosystem Development</li>
+          <li>Relationship Strategy</li>
+        </ul>
+        <p class="pillar-deliverables"><strong>Approach</strong>Building strategic ecosystems and facilitating meaningful collaborations that compound over time.</p>
       </div>
 
-      <div class="service-card">
-        <span class="service-num">04</span>
-        <h3 class="service-title">Strategic Partnerships</h3>
-        <p class="service-body">The right partnerships accelerate growth, open doors, and establish authority. We identify, vet, and facilitate meaningful strategic alliances — between brands, institutions, distribution networks, retail partners, hospitality groups, and private entities.</p>
-        <div class="service-tags">
-          <span class="service-tag">For: All Luxury Verticals</span>
-          <span class="service-tag">Partnership Brokerage</span>
-        </div>
-      </div>
-
-      <div class="service-card">
-        <span class="service-num">05</span>
-        <h3 class="service-title">Strategic Access & Industry Placement</h3>
-        <p class="service-body">Access is a competitive advantage most brands cannot manufacture. We place our clients in the rooms, conversations, events, and networks that matter — providing introductions to the individuals and organizations that move markets.</p>
-        <div class="service-tags">
-          <span class="service-tag">For: Private Founders</span>
-          <span class="service-tag">Industry Access</span>
-          <span class="service-tag">Network Introductions</span>
-        </div>
-      </div>
-
-      <div class="service-card">
-        <span class="service-num">06</span>
-        <h3 class="service-title">Campaign & Editorial Architecture</h3>
-        <p class="service-body">Luxury visibility is earned, not bought. We architect campaigns and editorial strategies that place brands within the cultural and editorial landscape of their target market — through the right publications, creators, institutions, and moments.</p>
-        <div class="service-tags">
-          <span class="service-tag">For: Fashion & Beauty</span>
-          <span class="service-tag">Editorial Strategy</span>
-          <span class="service-tag">Campaign Design</span>
-        </div>
-      </div>
-
-      <div class="service-card">
-        <span class="service-num">07</span>
-        <h3 class="service-title">Luxury Visibility Strategy</h3>
-        <p class="service-body">Visibility at the luxury level requires a different architecture than conventional marketing. We develop bespoke visibility frameworks that establish authority, desirability, and cultural relevance across global luxury markets — without overexposure.</p>
-        <div class="service-tags">
-          <span class="service-tag">For: New Entrants</span>
-          <span class="service-tag">Positioning</span>
-          <span class="service-tag">Awareness Architecture</span>
-        </div>
-      </div>
-
-      <div class="service-card">
-        <span class="service-num">08</span>
-        <h3 class="service-title">Private Advisory Retainers</h3>
-        <p class="service-body">For founders and executives who require ongoing strategic guidance, market intelligence, and high-level decision support, our Private Advisory Retainer provides continuous access to our team's intelligence, networks, and strategic perspective — on a confidential, retained basis.</p>
-        <div class="service-tags">
-          <span class="service-tag">Retained Clients Only</span>
-          <span class="service-tag">Confidential</span>
-        </div>
+      <div class="pillar-block">
+        <span class="pillar-block-num">Pillar 04</span>
+        <h3 class="pillar-block-title">Ventures & Experiences</h3>
+        <p class="pillar-block-purpose">Build, support, and develop ventures, experiences, and long-term opportunities across luxury industries.</p>
+        <ul class="pillar-service-list">
+          <li>Venture Development</li>
+          <li>Brand Incubation</li>
+          <li>Strategic Growth Initiatives</li>
+          <li>Luxury Experiences</li>
+          <li>Industry Experiences</li>
+          <li>Advisory Engagements</li>
+        </ul>
+        <p class="pillar-deliverables"><strong>Distinction</strong>Santori does not only advise others — we actively build and participate in the luxury economy.</p>
       </div>
 
     </div>
 
     <div style="margin-top: 60px; text-align:center;" class="reveal">
-      <a href="#inquiry" class="btn-primary">Inquire About Services</a>
+      <a href="#inquiry" class="btn-primary">Inquire About Capabilities</a>
     </div>
 
   </div>
@@ -1851,17 +2050,17 @@
 
     <div class="clients-intro">
       <div>
-        <div class="section-label reveal">Our Clientele</div>
+        <div class="section-label reveal">Our Constituents</div>
         <h2 class="section-headline reveal reveal-delay-1">
-          Serving Those Who<br>
-          Operate at <em>The Top</em><br>
-          of Their Category.
+          Built for Those Who<br>
+          Shape <em>Luxury</em><br>
+          at the Highest Level.
         </h2>
       </div>
       <div>
         <p class="section-body reveal reveal-delay-2">
-          Santori Reserve works exclusively with brands, creators, and founders operating at the luxury level — or those with the strategic ambition and product quality to compete there. We are not a volume agency. We are a selective partner.<br><br>
-          Every engagement begins with a private inquiry and an assessment of strategic alignment. Our clients choose us for access, intelligence, and results. We choose our clients for caliber, vision, and commitment to excellence.
+          Santori Reserve works with ambitious brands, founders, creators, and ventures operating at — or aspiring toward — the luxury level. We are not a volume operation. We are a selective strategic partner and venture platform.<br><br>
+          Every engagement begins with private inquiry and assessment of strategic alignment. Our partners choose us for intelligence, influence, and long-term growth. We choose our partners for caliber, vision, and commitment to building something enduring.
         </p>
       </div>
     </div>
@@ -1910,15 +2109,105 @@
     </div>
 
     <div class="client-statement reveal">
-      <p>"Luxury brands often fail internationally not because their product is wrong — but because their strategy is. The wrong market, the wrong moment, the wrong partnerships, the wrong cultural read. We exist to change that."</p>
-      <cite>— Santori Reserve, Strategic Philosophy</cite>
+      <p>"Luxury brands rarely fail because of product. They fail because of positioning, timing, relationships, and cultural misread. Santori exists at the intersection where intelligence, influence, and venture strategy converge — to change that outcome."</p>
+      <cite>— Santori Reserve</cite>
     </div>
 
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ -->
-<!-- SECTION 5: INTELLIGENCE -->
+<!-- SECTION 5: VENTURES -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="ventures">
+  <div class="container">
+
+    <div class="ventures-header">
+      <div>
+        <div class="section-label reveal">Ventures</div>
+        <h2 class="section-headline reveal reveal-delay-1">
+          A Curated Portfolio<br>
+          Across the <em>Luxury</em><br>
+          Economy.
+        </h2>
+      </div>
+      <div>
+        <p class="section-body reveal reveal-delay-2">
+          Santori Reserve is not only a strategy house — it is an active participant in the luxury economy. Our growing portfolio of ventures spans hospitality, fashion, experiences, media, culture, and future industries. Each venture extends the Santori ecosystem and reflects our conviction that influence is built through participation, not observation.
+        </p>
+      </div>
+    </div>
+
+    <div class="ventures-grid reveal">
+      <div class="venture-card">
+        <span class="venture-label">Hospitality & Experiences</span>
+        <h3 class="venture-name">Ivara Hous</h3>
+        <p class="venture-desc">Luxury hospitality, creator partnerships, travel experiences, and hospitality growth — building elevated destinations and experiences at the intersection of culture, design, and influence.</p>
+      </div>
+      <div class="venture-card">
+        <span class="venture-label">Fashion & Culture</span>
+        <h3 class="venture-name">LuuGíaa</h3>
+        <p class="venture-desc">Luxury womenswear and fashion venture — rooted in editorial sensibility, cultural relevance, and the long-term architecture of a global luxury brand.</p>
+      </div>
+    </div>
+
+    <div class="ventures-note reveal">
+      <p>Future ventures and initiatives will continue expanding the Santori ecosystem — quietly, deliberately, and at the standard our name demands.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 6: PHILOSOPHY -->
+<!-- ═══════════════════════════════════════════════════ -->
+<section id="philosophy">
+  <div class="container">
+
+    <div class="philosophy-header">
+      <div class="section-label reveal">Philosophy</div>
+      <h2 class="section-headline reveal reveal-delay-1">
+        Principles That<br>
+        Govern <em>How</em> Luxury<br>
+        Is Built.
+      </h2>
+      <p class="section-body reveal reveal-delay-2" style="margin-top:24px;">
+        Santori Reserve is an institution of thought as much as action. Our philosophy reflects how we understand influence, opportunity, and the architecture of enduring luxury ecosystems.
+      </p>
+    </div>
+
+    <div class="philosophy-grid reveal">
+      <div class="philosophy-item">
+        <p>"Influence compounds."</p>
+        <span>Authority is not manufactured overnight. It is accumulated through consistent positioning, cultural relevance, and strategic visibility over time.</span>
+      </div>
+      <div class="philosophy-item">
+        <p>"Relationships create leverage."</p>
+        <span>The most valuable opportunities are unlocked through alignment — not transactions. Strategic relationships are the foundation of luxury growth.</span>
+      </div>
+      <div class="philosophy-item">
+        <p>"Opportunity follows positioning."</p>
+        <span>Markets respond to perception before product. Those who understand cultural positioning attract the opportunities others chase.</span>
+      </div>
+      <div class="philosophy-item">
+        <p>"Luxury is built through perception, culture, and experience."</p>
+        <span>Desirability is engineered at the intersection of narrative, environment, and emotional resonance — never through volume or noise.</span>
+      </div>
+      <div class="philosophy-item" style="grid-column: 1 / -1;">
+        <p>"The most valuable ecosystems are intentionally designed."</p>
+        <span>Randomness is not strategy. The brands, ventures, and institutions that endure are those built with intelligence, relationships, and long-term vision at their core.</span>
+      </div>
+    </div>
+
+    <div class="philosophy-closing reveal">
+      <p>Santori Reserve is building the future of luxury through <em>intelligence, influence, relationships, ventures, experiences, and strategic growth.</em></p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- SECTION 7: INTELLIGENCE -->
 <!-- ═══════════════════════════════════════════════════ -->
 <section id="intelligence">
   <div class="container">
@@ -1927,14 +2216,14 @@
       <div>
         <div class="section-label reveal">Intelligence Desk</div>
         <h2 class="section-headline reveal reveal-delay-1">
-          Market Intelligence<br>
-          for <em>Informed</em><br>
-          Expansion.
+          Intelligence for<br>
+          <em>Informed</em> Strategic<br>
+          Decision-Making.
         </h2>
       </div>
       <div>
         <p class="section-body reveal reveal-delay-2">
-          Santori Reserve publishes curated intelligence briefs, market reports, and cultural analysis for the luxury sector. Available exclusively to clients and registered inquiries. Our intelligence desk monitors global luxury trends, emerging markets, consumer shifts, and geopolitical factors affecting brand strategy.
+          Intelligence is the first pillar of the Santori ecosystem — and the foundation of every strategic decision we support. Our intelligence desk publishes curated briefs, market reports, and cultural analysis for the luxury sector, monitoring global trends, emerging markets, consumer shifts, and the forces shaping luxury influence worldwide.
         </p>
         <a href="#inquiry" class="btn-secondary" style="display:inline-flex; margin-top:28px; font-size:0.6rem;">Request Intelligence Access</a>
       </div>
@@ -1987,7 +2276,7 @@
     </div>
 
     <div class="intel-cta-bar reveal">
-      <p>"Intelligence is the difference between entering a market and owning it."</p>
+      <p>"Intelligence is the difference between reacting to markets and shaping them."</p>
       <a href="#inquiry" class="btn-primary">Access Our Intelligence Desk</a>
     </div>
 
@@ -2010,8 +2299,8 @@
       <div class="inquiry-left">
         <h2 class="reveal">This Is Not<br>a Contact Form.<br>It Is an <em>Application.</em></h2>
         <p class="inquiry-note reveal reveal-delay-1">
-          Santori Reserve does not operate on a first-come, first-served basis. Every potential engagement begins with a private inquiry, which our team reviews for strategic alignment, market fit, and readiness.<br><br>
-          If we believe we can deliver meaningful results for your brand, we will reach out to arrange a confidential consultation at your earliest convenience.
+          Santori Reserve does not operate on a first-come, first-served basis. Every potential engagement begins with a private inquiry, which our team reviews for strategic alignment, ambition, and readiness.<br><br>
+          If we believe we can deliver meaningful results — through intelligence, influence, relationships, or venture development — we will reach out to arrange a confidential consultation.
         </p>
         <div class="inquiry-details reveal reveal-delay-2">
           <div class="inquiry-detail-item">Engagements are strictly confidential</div>
@@ -2065,18 +2354,16 @@
         </div>
 
         <div class="form-group">
-          <label>Service Interest</label>
+          <label>Capability Interest</label>
           <select name="service-interest">
             <option value="" disabled selected>Primary area of interest</option>
-            <option>International Market Intelligence</option>
-            <option>Cultural Positioning Intelligence</option>
-            <option>Expansion Architecture</option>
-            <option>Strategic Partnerships</option>
-            <option>Strategic Access &amp; Industry Placement</option>
-            <option>Campaign &amp; Editorial Architecture</option>
-            <option>Luxury Visibility Strategy</option>
-            <option>Private Advisory Retainer</option>
-            <option>Multiple Services / Unsure</option>
+            <option>Pillar 01 — Intelligence</option>
+            <option>Pillar 02 — Influence & Positioning</option>
+            <option>Pillar 03 — Relationships & Partnerships</option>
+            <option>Pillar 04 — Ventures & Experiences</option>
+            <option>Venture Partnership / Collaboration</option>
+            <option>Intelligence Desk Access</option>
+            <option>Multiple Capabilities / Unsure</option>
           </select>
         </div>
 
@@ -2108,26 +2395,26 @@
     <div class="footer-top">
       <div>
         <span class="footer-brand-name">Santori<span>&nbsp;Reserve</span></span>
-        <p class="footer-tagline">A private luxury strategy house helping brands expand, position, and integrate into new markets through intelligence, partnerships, access, and cultural precision.</p>
+        <p class="footer-tagline">A luxury strategy and venture house operating at the intersection of intelligence, influence, relationships, experiences, and growth — shaping the future of luxury through strategic ecosystem design.</p>
       </div>
       <div>
         <div class="footer-col-title">Navigation</div>
         <ul class="footer-links">
           <li><a href="#about">About the House</a></li>
-          <li><a href="#services">Services</a></li>
-          <li><a href="#clients">Who We Work With</a></li>
+          <li><a href="#services">Capabilities</a></li>
+          <li><a href="#ventures">Ventures</a></li>
+          <li><a href="#philosophy">Philosophy</a></li>
           <li><a href="#intelligence">Intelligence Desk</a></li>
           <li><a href="#inquiry">Private Inquiry</a></li>
         </ul>
       </div>
       <div>
-        <div class="footer-col-title">Services</div>
+        <div class="footer-col-title">Capabilities</div>
         <ul class="footer-links">
-          <li><a href="#services">Market Intelligence</a></li>
-          <li><a href="#services">Cultural Positioning</a></li>
-          <li><a href="#services">Expansion Architecture</a></li>
-          <li><a href="#services">Strategic Partnerships</a></li>
-          <li><a href="#services">Private Advisory</a></li>
+          <li><a href="#services">Intelligence</a></li>
+          <li><a href="#services">Influence & Positioning</a></li>
+          <li><a href="#services">Relationships & Partnerships</a></li>
+          <li><a href="#services">Ventures & Experiences</a></li>
         </ul>
       </div>
       <div>
@@ -2135,7 +2422,7 @@
         <ul class="footer-links">
           <li><a href="#inquiry">Private Inquiry Form</a></li>
           <li><a href="#intelligence">Intelligence Access</a></li>
-          <li><a href="#inquiry">Advisory Retainer</a></li>
+          <li><a href="#ventures">Venture Collaboration</a></li>
         </ul>
         <div style="margin-top: 32px;">
           <div class="footer-col-title">Confidentiality</div>
