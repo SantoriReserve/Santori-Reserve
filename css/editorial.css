@@ -1,0 +1,260 @@
+:root {
+  --espresso: #1a1410;
+  --charcoal: #0f0e0c;
+  --ivory: #f5f0e8;
+  --champagne: #c9a96e;
+  --champagne-light: #e8d5a3;
+  --warm-grey: #8a8278;
+  --light-grey: #d4cfc8;
+  --dark-surface: #201c18;
+  --border: rgba(201,169,110,0.2);
+  --border-light: rgba(201,169,110,0.08);
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Manrope', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body.editorial-page {
+  background: var(--charcoal);
+  color: var(--ivory);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+.editorial-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 22px clamp(24px, 5vw, 60px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15,14,12,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.editorial-logo {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ivory);
+  text-decoration: none;
+}
+.editorial-logo span { color: var(--champagne); }
+
+.editorial-nav-links {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 32px);
+}
+.editorial-nav-links a {
+  font-size: 0.54rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--light-grey);
+  text-decoration: none;
+  transition: color 0.3s;
+}
+.editorial-nav-links a:hover { color: var(--champagne); }
+
+.editorial-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--champagne);
+  text-decoration: none;
+  margin-bottom: 48px;
+  transition: opacity 0.3s;
+}
+.editorial-back:hover { opacity: 0.75; }
+
+.editorial-hero {
+  padding: clamp(120px, 16vh, 160px) clamp(24px, 5vw, 60px) clamp(64px, 8vh, 88px);
+  max-width: 820px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.report-category,
+.venture-eyebrow {
+  font-size: 0.52rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--champagne);
+  display: block;
+  margin-bottom: 24px;
+}
+
+.editorial-hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 300;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+.editorial-hero h1 em {
+  font-style: italic;
+  color: var(--champagne);
+}
+
+.editorial-meta {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--warm-grey);
+}
+
+.editorial-body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(56px, 8vh, 88px) clamp(24px, 5vw, 60px) clamp(80px, 10vh, 120px);
+}
+
+.editorial-section {
+  margin-bottom: clamp(48px, 6vh, 72px);
+  padding-bottom: clamp(40px, 5vh, 56px);
+  border-bottom: 1px solid var(--border-light);
+}
+.editorial-section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.editorial-section h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 400;
+  color: var(--ivory);
+  margin-bottom: 20px;
+  letter-spacing: 0.01em;
+}
+
+.editorial-section p {
+  font-size: clamp(0.78rem, 1.3vw, 0.84rem);
+  color: var(--warm-grey);
+  line-height: 1.95;
+  margin-bottom: 16px;
+  letter-spacing: 0.02em;
+}
+.editorial-section p:last-child { margin-bottom: 0; }
+
+.editorial-list {
+  list-style: none;
+  display: grid;
+  gap: 14px;
+}
+.editorial-list li {
+  font-size: clamp(0.76rem, 1.2vw, 0.82rem);
+  color: var(--light-grey);
+  line-height: 1.85;
+  padding-left: 20px;
+  position: relative;
+}
+.editorial-list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--champagne);
+}
+
+.editorial-perspective {
+  background: rgba(201,169,110,0.04);
+  border: 1px solid var(--border-light);
+  padding: clamp(28px, 4vw, 40px);
+  margin-top: 8px;
+}
+.editorial-perspective p {
+  font-family: var(--font-serif);
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  font-style: italic;
+  color: var(--ivory);
+  line-height: 1.65;
+}
+
+.editorial-cta-row {
+  margin-top: 56px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.btn-editorial-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 14px 32px;
+  background: var(--champagne);
+  color: var(--charcoal);
+  text-decoration: none;
+  font-size: 0.56rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+.btn-editorial-primary:hover { background: var(--champagne-light); }
+
+.btn-editorial-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 14px 32px;
+  border: 1px solid var(--border);
+  color: var(--light-grey);
+  text-decoration: none;
+  font-size: 0.56rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  transition: color 0.3s, border-color 0.3s;
+}
+.btn-editorial-secondary:hover {
+  color: var(--champagne);
+  border-color: var(--champagne);
+}
+
+.editorial-footer {
+  border-top: 1px solid var(--border-light);
+  padding: 40px clamp(24px, 5vw, 60px);
+  text-align: center;
+}
+.editorial-footer p {
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  color: var(--warm-grey);
+  text-transform: uppercase;
+}
+.editorial-footer a {
+  color: var(--champagne);
+  text-decoration: none;
+}
+
+.venture-lede {
+  font-family: var(--font-serif);
+  font-size: clamp(1.2rem, 2.2vw, 1.5rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--light-grey);
+  line-height: 1.55;
+  margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+  .editorial-nav { padding: 18px 24px; }
+  .editorial-nav-links a:not(.editorial-logo) { display: none; }
+  .editorial-cta-row { flex-direction: column; }
+  .editorial-cta-row a { width: 100%; justify-content: center; }
+}
